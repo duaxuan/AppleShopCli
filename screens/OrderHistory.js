@@ -1,61 +1,39 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, StyleSheet, Text, View, Image} from 'react-native';
+import {formatPrice} from './HomeScreen';
 
-const OrderHistory = ({navigation, route}) => {
-  const {purchasedProduct, quantity} = route.params;
-  const [arrray, setArray] = useState([]); // Danh sách sản phẩm trong giỏ hàng
-
-  useEffect(() => {
-    // useEffect sẽ được gọi mỗi khi purchasedProduct hoặc quantity thay đổi
-    if (purchasedProduct && quantity) {
-      // Tạo một bản sao của mảng arrray để tránh việc thay đổi trực tiếp state
-      const updatedArray = [...arrray];
-      // Kiểm tra xem sản phẩm đã mua có trong danh sách chưa
-      const existingProductIndex = updatedArray.findIndex(
-        item => item.id === purchasedProduct.id,
-      );
-
-      if (existingProductIndex === -1) {
-        // Nếu sản phẩm chưa có trong danh sách, thêm vào danh sách với số lượng mua là quantity
-        updatedArray.push({
-          id: purchasedProduct.id,
-          name: purchasedProduct.name,
-          image: purchasedProduct.image,
-          price: purchasedProduct.price,
-          thuoctinh: purchasedProduct.thuoctinh,
-          soluong: quantity,
-        });
-      } else {
-        // Nếu sản phẩm đã có trong danh sách, cập nhật số lượng mua của sản phẩm đó
-        updatedArray[existingProductIndex].soluong += quantity;
-      }
-
-      // Cập nhật state với danh sách đã được cập nhật
-      setArray(updatedArray);
-    }
-  }, [purchasedProduct, quantity]);
-
+const OrderHistory = () => {
+  const array = [
+    {
+      id: '1',
+      name: 'Macbook Air',
+      image: require('../assets/macbookk.png'),
+      price: 20000,
+      a: 'Chip: Intel Core i5',
+      b: 'Ram: 8GB',
+      c: 'Bộ nhớ: 256GB SSD',
+      d: 'Kích thước màn: 13.3 inches',
+      quantity: 2,
+    },
+  ];
   const renderItem = ({item}) => (
     <View style={styles.itemContainer}>
-      <Image style={styles.image} source={item.image} resizeMode="contain" />
-      <View style={styles.textContainer}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.description}>{item.thuoctinh}</Text>
-        <View style={styles.infoContainer}>
-          <Text style={styles.quantity}>Số lượng: {item.soluong}</Text>
-          <Text style={styles.price}>{formatPrice(item.price)}</Text>
+      <View style={styles.rowItem}>
+        <Image style={styles.image} source={item.image} resizeMode="contain" />
+        <View style={styles.textContainer}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.quantity}>{item.a}</Text>
+          <Text style={styles.quantity}>{item.b}</Text>
+          <Text style={styles.quantity}>{item.c}</Text>
+          <Text style={styles.quantity}>{item.d}</Text>
+          <View style={styles.infoContainer}>
+            <Text style={styles.quantity}>Số lượng: {item.quantity}</Text>
+            <Text style={styles.price}>{formatPrice(item.price)}</Text>
+          </View>
         </View>
       </View>
     </View>
   );
-
-  const formatPrice = price => {
-    const formattedPrice = new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(price);
-    return formattedPrice;
-  };
 
   return (
     <View style={styles.container}>
@@ -64,10 +42,10 @@ const OrderHistory = ({navigation, route}) => {
       </View>
       <FlatList
         showsVerticalScrollIndicator={false}
-        data={arrray}
+        data={array}
         keyExtractor={item => item.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.flatlistContent}
+        contentContainerStyle={{marginHorizontal: '3%'}}
       />
     </View>
   );
@@ -87,23 +65,25 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   headerText: {
+    color: 'black',
     fontSize: 20,
     fontWeight: 'bold',
   },
-  flatlistContent: {
-    paddingHorizontal: 16,
-  },
   itemContainer: {
-    flexDirection: 'row',
-    marginTop: 16,
+    marginTop: '3%',
     backgroundColor: '#fff',
     borderRadius: 5,
     elevation: 4,
-    padding: 16,
+  },
+  rowItem: {
+    margin: '1%',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   image: {
-    width: 120,
+    width: 110,
     height: 100,
+    resizeMode: 'contain',
     borderRadius: 8,
   },
   textContainer: {
@@ -111,26 +91,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
+    color: 'black',
     fontSize: 20,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 15,
-    color: '#666',
-    marginVertical: 10,
+    fontWeight: '600',
   },
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   quantity: {
-    fontSize: 15,
-    color: '#666',
+    fontSize: 13,
+    color: 'black',
   },
   price: {
     fontSize: 18,
     color: '#FC6D26',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 

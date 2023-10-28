@@ -6,22 +6,18 @@ import {
   Text,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {formatPrice} from '../HomeScreen';
 
-const OrderScreen = ({navigation}) => {
-  const [object, setObject] = useState({
-    name: 'Apple Watch S5',
-    image:
-      'https://th.bing.com/th/id/OIP.8Isx8EUN0ilB4nOCohRf6gHaHR?w=218&h=214&c=7&r=0&o=5&pid=1.7',
-    price: 3120000,
-    description: 'Là sản phẩm đồng hồ thương hiệu đến từ nhà táo',
-    quantity: 500,
-    typeProduct: 3,
-    created: '10/09/2023',
-    updated: '12/09/2023',
-  });
+const OrderScreen2 = ({navigation, route}) => {
+  const {purchasedProduct, quantity} = route.params;
+  const account = {
+    name: 'Nguyen Xuan Duan',
+    phone: '0964863417',
+    address: 'Ngõ 193/220/41 Phú Diễn, Bắc Từ Liêm, Hà Nội',
+  };
 
   return (
     <View style={styles.container}>
@@ -43,17 +39,21 @@ const OrderScreen = ({navigation}) => {
           <View style={styles.viewBox1}>
             <Text style={{color: '#33CCFF'}}>Thông tin người nhận hàng</Text>
             <View style={{marginTop: '2%'}}>
-              <Text>Tên người nhận</Text>
-              <Text style={{fontWeight: 'bold'}}>Nguyen Xuan Duan</Text>
+              <Text style={{color: 'black'}}>Tên người nhận</Text>
+              <Text style={{fontWeight: 'bold', color: 'black'}}>
+                {account.name}
+              </Text>
             </View>
             <View style={{marginTop: '2%'}}>
-              <Text>Số điênj thoại người nhận</Text>
-              <Text style={{fontWeight: 'bold'}}>0964863417</Text>
+              <Text style={{color: 'black'}}>Số điện thoại người nhận</Text>
+              <Text style={{fontWeight: 'bold', color: 'black'}}>
+                {account.phone}
+              </Text>
             </View>
             <View style={{marginTop: '2%'}}>
-              <Text>Địa chỉ giao hàng</Text>
-              <Text style={{fontWeight: 'bold'}}>
-                Ngõ 193/220/41 Phú Diễn, Bắc Từ Liêm, Hà Nội{' '}
+              <Text style={{color: 'black'}}>Địa chỉ giao hàng</Text>
+              <Text style={{fontWeight: 'bold', color: 'black'}}>
+                {account.address}
               </Text>
             </View>
           </View>
@@ -65,16 +65,16 @@ const OrderScreen = ({navigation}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Image
                 style={styles.imageProdduct}
-                source={{uri: object.image}}
+                source={purchasedProduct.image}
               />
               <View style={{left: '5%'}}>
-                <Text style={styles.txtItemName}>{object.name}</Text>
+                <Text style={styles.txtItemName}>{purchasedProduct.name}</Text>
                 <Text style={styles.txtItemPrice}>
-                  đ {object.price.toLocaleString().replace(/,/g, '.')}
+                  {formatPrice(purchasedProduct.price)}
                 </Text>
               </View>
             </View>
-            <Text style={styles.txtItemPrice}>X1</Text>
+            <Text style={styles.txtItemPrice}>X{quantity}</Text>
           </View>
         </View>
         {/* Khuyến mãi */}
@@ -87,7 +87,7 @@ const OrderScreen = ({navigation}) => {
                 <Text style={{color: '#999999'}}>Voicher khuyến mãi </Text>
               </View>
             </View>
-            <AntDesign name="right" size={24} color="#999999" />
+            <AntDesign name="right" size={20} color="#999999" />
           </View>
         </View>
         {/* Thanh toán */}
@@ -95,23 +95,27 @@ const OrderScreen = ({navigation}) => {
         <View style={[styles.viewBox, {height: 250}]}>
           <View style={styles.itemPay}>
             <Text style={{color: '#999999'}}>Giá sản phẩm:</Text>
-            <Text style={{fontWeight: '500'}}>
-              {object.price.toLocaleString().replace(/,/g, '.')} đ
+            <Text style={{fontWeight: '500', color: 'black'}}>
+              {formatPrice(purchasedProduct.price)}
             </Text>
           </View>
           <View style={styles.itemPay}>
             <Text style={{color: '#999999'}}>Khuyến mãi:</Text>
-            <Text style={{fontWeight: '500'}}>0 đ</Text>
+            <Text style={{fontWeight: '500', color: 'black'}}>
+              {formatPrice(0)}
+            </Text>
           </View>
           <View style={styles.itemPay}>
             <Text style={{color: '#999999'}}>Phí vận chuyển:</Text>
-            <Text style={{fontWeight: '500'}}>0 đ</Text>
+            <Text style={{fontWeight: '500', color: 'black'}}>
+              {formatPrice(0)}
+            </Text>
           </View>
           <View style={styles.hr} />
           <View style={styles.itemPay}>
             <Text style={{fontWeight: 'bold'}}>Tổng tiền thanh toán:</Text>
             <Text style={{fontWeight: '500', color: '#FF5C00'}}>
-              {object.price.toLocaleString().replace(/,/g, '.')} đ
+              {formatPrice(purchasedProduct.price)}
             </Text>
           </View>
         </View>
@@ -124,7 +128,7 @@ const OrderScreen = ({navigation}) => {
   );
 };
 
-export default OrderScreen;
+export default OrderScreen2;
 
 const styles = StyleSheet.create({
   container: {
@@ -140,10 +144,12 @@ const styles = StyleSheet.create({
   },
   txtHeader: {
     left: '30%',
+    color: 'black',
     fontSize: 20,
     fontWeight: '500',
   },
   txtTitle: {
+    color: 'black',
     fontSize: 18,
     marginTop: '3%',
     fontWeight: '500',
@@ -172,10 +178,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   txtItemName: {
+    color: 'black',
     fontSize: 15,
     fontWeight: '500',
   },
   txtItemPrice: {
+    color: 'black',
     marginTop: '7%',
     fontSize: 12,
     fontWeight: '500',

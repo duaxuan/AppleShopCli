@@ -10,7 +10,6 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
 
 // Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
@@ -21,10 +20,9 @@ const LINE_MARGIN_HORIZONTAL = 6;
 
 const Line = () => <View style={styles.line} />;
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
-  const navigation = useNavigation();
 
   // Cho 3s chuyển màn hình Main
   const navigateToHome = () => {
@@ -48,7 +46,7 @@ const LoginScreen = () => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text>Email</Text>
+          <Text style={{color: 'black'}}>Email</Text>
           <TextInput
             style={styles.edt}
             placeholder="Enter your email"
@@ -57,7 +55,7 @@ const LoginScreen = () => {
           />
         </View>
         <View style={{marginTop: 16}}>
-          <Text>Password</Text>
+          <Text style={{color: 'black'}}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
@@ -86,7 +84,7 @@ const LoginScreen = () => {
             marginTop: 32,
           }}>
           <Line />
-          <Text> Or With </Text>
+          <Text style={{color: 'black'}}> Or With </Text>
           <Line />
         </View>
         <View
@@ -110,10 +108,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
+    color: 'black',
     marginTop: '20%',
     marginLeft: '6%',
   },
   titleBig: {
+    color: 'black',
     fontSize: 25,
     fontWeight: '600',
   },

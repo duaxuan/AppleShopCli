@@ -42,7 +42,7 @@ const SigupScreen = ({navigation}) => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text>Email</Text>
+          <Text style={{color: 'black'}}>Email</Text>
           <TextInput
             style={styles.edt}
             placeholder="Enter your email"
@@ -51,7 +51,7 @@ const SigupScreen = ({navigation}) => {
           />
         </View>
         <View style={{marginTop: 16}}>
-          <Text>Phone Number</Text>
+          <Text style={{color: 'black'}}>Phone Number</Text>
           <View style={styles.phoneInputContainer}>
             <Text style={styles.countryCode}>{countryPrefix}</Text>
             <TextInput
@@ -62,7 +62,7 @@ const SigupScreen = ({navigation}) => {
           </View>
         </View>
         <View style={{marginTop: 16}}>
-          <Text>Password</Text>
+          <Text style={{color: 'black'}}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
@@ -91,7 +91,7 @@ const SigupScreen = ({navigation}) => {
             marginTop: 32,
           }}>
           <Line />
-          <Text> Or With </Text>
+          <Text style={{color: 'black'}}> Or With </Text>
           <Line />
         </View>
         <View
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
     marginLeft: '6%',
   },
   titleBig: {
+    color: 'black',
     fontSize: 25,
     fontWeight: '600',
   },

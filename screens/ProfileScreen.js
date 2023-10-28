@@ -1,5 +1,6 @@
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+// Khai bao icon
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -25,7 +26,9 @@ const ProfileScreen = ({navigation}) => {
     <View style={styles.container}>
       {/* Avatar, name, email */}
       <View style={styles.header}>
-        <Pressable style={styles.boderButtonHeader}>
+        <Pressable
+          style={styles.boderButtonHeader}
+          onPress={() => navigation.navigate('EditAccountScreen')}>
           <Image
             style={styles.boderAvatar}
             source={{
@@ -38,7 +41,7 @@ const ProfileScreen = ({navigation}) => {
         </Pressable>
         <Text style={styles.txtNameHeader}>Mr.Irtan</Text>
         <View style={styles.txtEmailHeader}>
-          <Text>krtolo727@gmail.com</Text>
+          <Text style={{color: 'black'}}>krtolo727@gmail.com</Text>
         </View>
       </View>
       {/* Button icon */}
@@ -46,11 +49,11 @@ const ProfileScreen = ({navigation}) => {
         <Text style={styles.titlePro}>Sản phẩm</Text>
         <Pressable
           style={styles.buttonView}
-          onPress={() => navigation.navigate('OrderScreen')}>
+          onPress={() => navigation.navigate('OrderScreen1')}>
           <View style={styles.rowButton}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <MaterialCommunityIcons name="shopping-outline" size={25} />
-              <Text style={{left: '30%'}}>Đơn hàng</Text>
+              <Text style={styles.txt}>Đơn hàng</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
@@ -61,7 +64,7 @@ const ProfileScreen = ({navigation}) => {
           <View style={styles.rowButton}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <AntDesign name="hearto" size={24} />
-              <Text style={{left: '30%'}}>Đã thích</Text>
+              <Text style={styles.txt}>Đã thích</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
@@ -70,7 +73,7 @@ const ProfileScreen = ({navigation}) => {
           <View style={styles.rowButton}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Ionicons name="chatbox-ellipses-outline" size={24} />
-              <Text style={{left: '30%'}}>Hỗ trợ với shop</Text>
+              <Text style={styles.txt}>Hỗ trợ với shop</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
@@ -79,13 +82,22 @@ const ProfileScreen = ({navigation}) => {
       {/* Button icon */}
       <View style={styles.aside}>
         <Text style={styles.titlePro}>Tài khoản</Text>
+        <Pressable style={styles.buttonView2}>
+          <View style={styles.rowButton}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <FontAwesome5 name="map" size={24} />
+              <Text style={styles.txt}>Địa chỉ</Text>
+            </View>
+            <AntDesign name="right" size={17} color="gray" />
+          </View>
+        </Pressable>
         <Pressable
           style={styles.buttonView}
           onPress={() => navigation.navigate('EditAccountScreen')}>
           <View style={styles.rowButton}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Feather name="user-check" size={24} />
-              <Text style={{left: '30%'}}>Cập nhật thông tin</Text>
+              <Text style={styles.txt}>Cập nhật thông tin</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
@@ -96,20 +108,12 @@ const ProfileScreen = ({navigation}) => {
           <View style={styles.rowButton}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <SimpleLineIcons name="lock" size={24} />
-              <Text style={{left: '30%'}}>Đổi mật khẩu</Text>
+              <Text style={styles.txt}>Đổi mật khẩu</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
-        <Pressable style={styles.buttonView2}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <AntDesign name="setting" size={24} />
-              <Text style={{left: '30%'}}>Cài đặt</Text>
-            </View>
-            <AntDesign name="right" size={17} color="gray" />
-          </View>
-        </Pressable>
+
         {/* Button Logout */}
         <Pressable
           style={styles.buttonLogout}
@@ -158,6 +162,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   txtNameHeader: {
+    color: 'black',
     marginTop: '2%',
     fontSize: 20,
     fontWeight: '500',
@@ -180,6 +185,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '5%',
   },
   titlePro: {
+    color: 'black',
     fontSize: 17,
     fontWeight: '500',
   },
@@ -202,6 +208,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: '4%',
     justifyContent: 'space-between',
+  },
+  txt: {
+    left: '30%',
+    color: 'black',
   },
   buttonLogout: {
     height: 50,

@@ -27,7 +27,7 @@ const FavouriteScreen = ({navigation}) => {
       updated: '12/09/2023',
     },
     {
-      name: 'Apple Watch S5',
+      name: 'Apple Watch S6',
       image:
         'https://th.bing.com/th/id/OIP.dPbGBaOqv8uz8AQWWdSQiwHaHa?w=166&h=180&c=7&r=0&o=5&pid=1.7',
       price: 6690000,
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
+    color: 'black',
     fontSize: 18,
     marginTop: '8%',
     fontWeight: '500',
@@ -161,10 +162,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   txtItemName: {
+    color: 'black',
     fontSize: 15,
     fontWeight: '500',
   },
   txtItemPrice: {
+    color: 'black',
     marginTop: '7%',
     fontSize: 12,
     fontWeight: '500',
@@ -187,6 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   txtYear: {
+    color: 'black',
     fontSize: 10,
     fontWeight: '500',
   },

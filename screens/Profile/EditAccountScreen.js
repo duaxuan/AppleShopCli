@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   txtHeader: {
+    color: 'black',
     left: '30%',
     fontSize: 18,
     fontWeight: '500',
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   txt: {
+    color: 'black',
     fontWeight: '600',
   },
   txtInput: {

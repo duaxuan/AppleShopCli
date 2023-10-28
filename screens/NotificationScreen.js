@@ -15,20 +15,22 @@ const NotificationScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.titleHeader}>Thông tin khuyến mãi</Text>
+        <Text style={styles.titleHeader}>Thông tin</Text>
       </View>
       {/* FlatList notifi */}
       <FlatList
         data={array}
         style={{marginTop: '2%'}}
-        renderItem={data => (
-          <Pressable style={styles.itemNoti}>
+        renderItem={({item}) => (
+          <Pressable style={styles.notiItem}>
             <View style={styles.rowItem}>
-              <Image style={styles.imageItem} source={{uri: data.item.image}} />
+              <Image style={styles.imageItem} source={{uri: item.image}} />
               <View style={{width: '70%'}}>
-                <Text style={{fontWeight: '500'}}>{data.item.title}</Text>
-                <Text style={{fontSize: 12, marginTop: '3%'}}>
-                  {data.item.information}
+                <Text style={styles.itemTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <Text style={styles.itemInfo} numberOfLines={2}>
+                  {item.information}
                 </Text>
               </View>
             </View>
@@ -52,10 +54,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   titleHeader: {
+    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  itemNoti: {
+  notiItem: {
     height: 105,
     marginTop: '0.5%',
     borderRadius: 10,
@@ -71,5 +74,14 @@ const styles = StyleSheet.create({
     width: 100,
     height: 60,
     marginHorizontal: '2%',
+  },
+  itemTitle: {
+    color: 'black',
+    fontWeight: '500',
+  },
+  itemInfo: {
+    color: 'black',
+    fontSize: 12,
+    marginTop: '3%',
   },
 });

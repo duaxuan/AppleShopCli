@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   txttHeader: {
+    color: 'black',
     left: '30%',
     fontSize: 18,
     fontWeight: '500',
@@ -152,6 +153,7 @@ const styles = StyleSheet.create({
     borderColor: '#C6C6C6',
   },
   txt: {
+    color: 'black',
     fontWeight: '600',
   },
   passwordInput: {

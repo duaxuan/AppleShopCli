@@ -6,37 +6,19 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {formatPrice} from '../HomeScreen';
 
-const ProductdetailsScreen = () => {
-  const route = useRoute();
+const ProductdetailsScreen = ({navigation, route}) => {
   const {product} = route.params;
-  const navigation = useNavigation();
   const [quantity, setQuantity] = useState(1);
 
-  const formatPrice = price => {
-    const formatter = new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    });
-    return formatter.format(price);
-  };
-
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
   const handleAddToCart = () => {
-    Alert.alert('Thông báo', 'Sản phẩm đã được mua thành công!', [
-      {
-        text: 'OK',
-        onPress: () =>
-          navigation.navigate('Order', {purchasedProduct: product, quantity}),
-      },
-    ]);
+    navigation.navigate('OrderScreen2', {
+      purchasedProduct: product,
+      quantity,
+    });
   };
 
   const handleIncrementQuantity = () => {
@@ -52,7 +34,7 @@ const ProductdetailsScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <TouchableOpacity onPress={handleBackPress}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons
             style={styles.backIcon}
             name="arrow-back-sharp"
@@ -71,19 +53,19 @@ const ProductdetailsScreen = () => {
         </View>
         <Text style={styles.sectionHeader}>Thông tin sản phẩm:</Text>
         <View style={styles.productDetails}>
-          <Text>{product.a}</Text>
+          <Text style={{color: 'black'}}>{product.a}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text>{product.b}</Text>
+          <Text style={{color: 'black'}}>{product.b}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text>{product.c}</Text>
+          <Text style={{color: 'black'}}>{product.c}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text>{product.d}</Text>
+          <Text style={{color: 'black'}}>{product.d}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text>{product.e}</Text>
+          <Text style={{color: 'black'}}>{product.e}</Text>
         </View>
       </ScrollView>
       <View
@@ -129,6 +111,7 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 24,
+    color: 'black',
     fontWeight: '500',
     marginBottom: 10,
   },
@@ -137,6 +120,7 @@ const styles = StyleSheet.create({
     color: '#FC6D26',
   },
   sectionHeader: {
+    color: 'black',
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,

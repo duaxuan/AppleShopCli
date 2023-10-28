@@ -13,7 +13,8 @@ import NotificationScreen from './screens/NotificationScreen';
 import OrderHistory from './screens/OrderHistory';
 import ProfileScreen from './screens/ProfileScreen';
 import ProductdetailsScreen from './screens/Order/ProductdetailsScreen';
-import OrderScreen from './screens/Order/OrderScreen';
+import OrderScreen1 from './screens/Order/OrderScreen1';
+import OrderScreen2 from './screens/Order/OrderScreen2';
 import FavouriteScreen from './screens/Profile/FavouriteScreen';
 import EditAccountScreen from './screens/Profile/EditAccountScreen';
 import AccountScrren from './screens/Profile/AccountScrren';
@@ -154,8 +155,13 @@ const StackNavigator = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="OrderScreen"
-          component={OrderScreen}
+          name="OrderScreen1"
+          component={OrderScreen1}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="OrderScreen2"
+          component={OrderScreen2}
           options={{headerShown: false}}
         />
         <Stack.Screen
