@@ -38,34 +38,21 @@ const ProductdetailsScreen = ({navigation, route}) => {
           <Ionicons
             style={styles.backIcon}
             name="arrow-back-sharp"
-            size={24}
+            size={25}
             color="#242424"
           />
         </TouchableOpacity>
-        <Image
-          style={styles.productImage}
-          source={product.image}
-          resizeMode="contain"
-        />
+        <Image style={styles.productImage} source={{uri: product.image}} />
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{product.name}</Text>
           <Text style={styles.productPrice}>{formatPrice(product.price)}</Text>
         </View>
         <Text style={styles.sectionHeader}>Thông tin sản phẩm:</Text>
         <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.a}</Text>
+          <Text style={{color: 'black'}}>{product.description}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.b}</Text>
-        </View>
-        <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.c}</Text>
-        </View>
-        <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.d}</Text>
-        </View>
-        <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.e}</Text>
+          <Text style={{color: 'black'}}>Số lượng: {product.quantity}</Text>
         </View>
       </ScrollView>
       <View
@@ -104,7 +91,11 @@ const styles = StyleSheet.create({
   },
   productImage: {
     height: 300,
-    width: '100%',
+    width: '98%',
+    marginTop: '2%',
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    borderRadius: 10,
   },
   productInfo: {
     padding: 20,

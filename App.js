@@ -21,6 +21,7 @@ import AccountScrren from './screens/Profile/AccountScrren';
 
 // Khai bao icon
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import InfoBlog from './screens/Order/InfoBlog';
 
 // Noi khai bao chuyen man
 const Tab = createBottomTabNavigator();
@@ -77,7 +78,7 @@ const BottomTabNavigator = () => {
                 size={size}
               />
               <Text style={focused ? styles.showTxt : styles.hiddenTxt}>
-                Notification
+                Blog
               </Text>
             </View>
           ),
@@ -162,6 +163,11 @@ const StackNavigator = () => {
         <Stack.Screen
           name="OrderScreen2"
           component={OrderScreen2}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="InfoBlog"
+          component={InfoBlog}
           options={{headerShown: false}}
         />
         <Stack.Screen

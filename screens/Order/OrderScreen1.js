@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   rowItem2: {
-    marginHorizontal: '3%',
+    marginHorizontal: '1%',
     alignItems: 'center',
     justifyContent: 'space-between',
   },

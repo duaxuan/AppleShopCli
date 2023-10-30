@@ -65,9 +65,9 @@ const OrderScreen2 = ({navigation, route}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Image
                 style={styles.imageProdduct}
-                source={purchasedProduct.image}
+                source={{uri: purchasedProduct.image}}
               />
-              <View style={{left: '5%'}}>
+              <View style={{left: '40%'}}>
                 <Text style={styles.txtItemName}>{purchasedProduct.name}</Text>
                 <Text style={styles.txtItemPrice}>
                   {formatPrice(purchasedProduct.price)}
@@ -169,12 +169,13 @@ const styles = StyleSheet.create({
   viewBox3: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: '5%',
+    marginHorizontal: '4%',
     justifyContent: 'space-between',
   },
   imageProdduct: {
-    width: 60,
-    height: 60,
+    width: 45,
+    height: 45,
+    borderRadius: 10,
     resizeMode: 'contain',
   },
   txtItemName: {
