@@ -47,7 +47,6 @@ const OrderScreen1 = ({navigation}) => {
         params: {role: USER_ROLE, userId: USER_ID},
       });
       setArray(res.data.message);
-      console.log(res.data.message);
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);

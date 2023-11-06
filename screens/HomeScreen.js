@@ -84,7 +84,6 @@ const HomeScreen = ({navigation}) => {
       setDATASANPHAM(res1.data.message);
       const res2 = await axios.get(API_Type_Product);
       setDATADANHMUC(res2.data.message);
-
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);

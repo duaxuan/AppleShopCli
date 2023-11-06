@@ -1,4 +1,5 @@
 import {
+  FlatList,
   Image,
   Pressable,
   StyleSheet,
@@ -6,103 +7,55 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  FlatList
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { API_Save_Product, API_User } from '../../API/getAPI';
+import {API_Favorite} from '../../API/getAPI';
 
-const FavouriteScreen = ({ navigation }) => {
-  const [DATAYEUTHICH, setDATAYEUTHICH] = useState([])
-  const [idUser, setidUser] = useState("65427d2cb8ea0e39a4a00de4")
+const USER_ID = '654682a665f5a0fe5eab8f93';
+
+const FavouriteScreen = ({navigation}) => {
   const [search, setSearch] = useState('');
-  const [array, setArray] = useState([
-    {
-      name: 'Apple Watch S5',
-      image:
-        'https://th.bing.com/th/id/OIP.8Isx8EUN0ilB4nOCohRf6gHaHR?w=218&h=214&c=7&r=0&o=5&pid=1.7',
-      price: 3120000,
-      description: 'Là sản phẩm đồng hồ thương hiệu đến từ nhà táo',
-      quantity: 500,
-      typeProduct: 3,
-      created: '10/09/2023',
-      updated: '12/09/2023',
-    },
-    {
-      name: 'Apple Watch S6',
-      image:
-        'https://th.bing.com/th/id/OIP.dPbGBaOqv8uz8AQWWdSQiwHaHa?w=166&h=180&c=7&r=0&o=5&pid=1.7',
-      price: 6690000,
-      description: 'Là sản phẩm đồng hồ thương hiệu đến từ nhà táo',
-      quantity: 500,
-      typeProduct: 3,
-      created: '10/09/2023',
-      updated: '12/09/2023',
-    },
-  ]);
-  // call api lưu
-  const getApi = async isCheck => {
-    try {
-      const res = await axios.get(API_User);
-      setDATAYEUTHICH(res.data)
-    } catch (error) {
-      console.log("Post api: " + error.message);
-      
-    }
+  const [array, setArray] = useState([]);
+  const [filteredArray, setFilteredArray] = useState([]);
 
+  const handleSearch = value => {
+    setSearch(value);
+    const filteredData = array.filter(item =>
+      item.name.toLowerCase().includes(value.toLowerCase()),
+    );
+    setFilteredArray(filteredData);
   };
+
+  const putAPI_Like = async item => {
+    try {
+      await axios.put(`${API_Favorite}${USER_ID}`, {productId: item._id});
+      getAPI();
+    } catch (error) {
+      console.error('Put api: ' + error.message);
+    }
+  };
+
+  const getAPI = async () => {
+    try {
+      const res1 = await axios.get(`${API_Favorite}${USER_ID}`);
+      const res2 = await axios.post(API_Favorite, {
+        productIds: res1.data['message'],
+      });
+      setArray(res2.data.message);
+      handleSearch(search);
+    } catch (error) {
+      console.error('Call api: ' + error.message);
+    }
+  };
+
   useEffect(() => {
-    getApi();
-    console.log(DATAYEUTHICH);
+    getAPI();
   }, []);
-  const renderItemSave = ({ item }) => {
-    const [like, setLike] = useState(false);
 
-    return (
-      <View style={styles.listItem}>
-        <View style={styles.viewItem}>
-          <Image style={styles.avatarItem} source={{ uri: item.image }} />
-          <View style={{ right: '20%' }}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={styles.txtItemName}>{item.name}</Text>
-              <View style={styles.itemYear}>
-                <Text style={styles.txtYear}>2019</Text>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={styles.txtItemPrice}>
-                đ {item.price.toLocaleString().replace(/,/g, '.')}
-              </Text>
-              <Text style={styles.txtItemPrice2}>
-                đ {item.price.toLocaleString().replace(/,/g, '.')}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => setLike(!like)}>
-            <AntDesign
-              name={like ? 'heart' : 'hearto'}
-              size={24}
-              color="black"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    )
-  }
-  // const ListSave = () => {
-  //   return (
-  //     <FlatList
-  //       scrollEnabled={false}
-  //       data={DATALUUSP}
-  //       keyExtractor={item => item._id}
-  //       renderItem={renderItemSave}
-
-  //     />
-  //   )
-  // }
   return (
     <View style={styles.container}>
       {/* Search, back */}
@@ -116,67 +69,58 @@ const FavouriteScreen = ({ navigation }) => {
             defaultValue={search}
             placeholder="Nhập từ khóa tìm kiếm"
             keyboardType="default"
-            onChangeText={content => setSearch(content)}
+            onChangeText={handleSearch}
           />
-          {search.length ? (
+          {search && (
             <TouchableOpacity
-              style={{ marginRight: '3%' }}
+              style={{marginRight: '3%'}}
               onPress={() => setSearch('')}>
               <Feather name="x-circle" size={24} color="black" />
             </TouchableOpacity>
-          ) : null}
+          )}
         </View>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.txtCancel}>Cancel</Text>
         </Pressable>
       </View>
       {/* List item */}
-      <Text style={styles.title}>Your reuslt</Text>
-      {/* {array.map((data, index) => {
-        const [like, setLike] = useState(false);
-        return (
-          <View key={index} style={styles.listItem}>
-            <View style={styles.viewItem}>
-              <Image style={styles.avatarItem} source={{uri: data.image}} />
-              <View style={{right: '20%'}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.txtItemName}>{data.name}</Text>
+      <Text style={styles.title}>Sản phẩm yêu thích</Text>
+      <FlatList
+        data={search ? filteredArray : array}
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
+          <Pressable
+            onPress={() =>
+              navigation.navigate('ProductdetailsScreen', {
+                product: item,
+              })
+            }
+            style={styles.listItem}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image style={styles.avatarItem} source={{uri: item.image}} />
+              <View style={{width: '55%', left: '10%'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text numberOfLines={1} style={styles.txtItemName}>
+                    {item.name}
+                  </Text>
                   <View style={styles.itemYear}>
-                    <Text style={styles.txtYear}>2019</Text>
+                    <Text style={styles.txtYear}>Mua ngay</Text>
                   </View>
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.txtItemPrice}>
-                    đ {data.price.toLocaleString().replace(/,/g, '.')}
-                  </Text>
-                  <Text style={styles.txtItemPrice2}>
-                    đ {data.price.toLocaleString().replace(/,/g, '.')}
-                  </Text>
-                </View>
+                <Text style={styles.txtItemPrice}>
+                  đ {item.price.toLocaleString().replace(/,/g, '.')}
+                </Text>
               </View>
-              <TouchableOpacity onPress={() => setLike(!like)}>
-                <AntDesign
-                  name={like ? 'heart' : 'hearto'}
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
             </View>
-          </View>
-        );
-      })} */}
-     {/* <FlatList
-        scrollEnabled={false}
-        data={DATALUUSP[idUser]}
-        keyExtractor={item => item._id}
-        renderItem={renderItemSave}
-
-      /> */}
+            <TouchableOpacity onPress={() => putAPI_Like(item)}>
+              <AntDesign name={'heart'} size={24} color="black" />
+            </TouchableOpacity>
+          </Pressable>
+        )}
+      />
     </View>
   );
 };
-
-export default FavouriteScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -215,21 +159,18 @@ const styles = StyleSheet.create({
   },
   listItem: {
     height: 80,
-    marginTop: '4%',
+    marginTop: '2%',
     borderRadius: 10,
-    borderRadius: 10,
+    padding: '2%',
     backgroundColor: 'white',
-    justifyContent: 'center',
-  },
-  viewItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: '5%',
   },
   avatarItem: {
-    width: 60,
+    width: 80,
     height: 60,
+    borderRadius: 10,
     resizeMode: 'contain',
   },
   txtItemName: {
@@ -242,14 +183,6 @@ const styles = StyleSheet.create({
     marginTop: '7%',
     fontSize: 12,
     fontWeight: '500',
-  },
-  txtItemPrice2: {
-    left: '50%',
-    color: '#666666',
-    marginTop: '7%',
-    fontSize: 11,
-    fontWeight: '500',
-    textDecorationLine: 'line-through',
   },
   itemYear: {
     left: '60%',
@@ -266,3 +199,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+export default FavouriteScreen;

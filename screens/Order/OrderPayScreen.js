@@ -15,6 +15,7 @@ import {API_User, API_User_Info} from '../../API/getAPI';
 import axios from 'axios';
 
 const USER_ID = '654682a665f5a0fe5eab8f93';
+const USER_ID_INFO = '65460fd7b1a47545e1894cfb';
 
 const OrderPayScreen = ({navigation, route}) => {
   const {purchasedProduct, quantity} = route.params;
@@ -37,7 +38,7 @@ const OrderPayScreen = ({navigation, route}) => {
       }
 
       const orderResponse = await axios.post(`${API_User}pay`, {
-        userId: USER_ID,
+        userId: USER_ID_INFO,
         productId: purchasedProduct._id,
         quantity,
         totalPrice: purchasedProduct.price * quantity,
