@@ -11,7 +11,7 @@ const SplashScreen = ({navigation}) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('LoginScreen');
+      navigation.replace('SigupScreen');
     }, 3000);
 
     Animated.timing(progress, {

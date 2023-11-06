@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,10 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { checkValidatePassword, checkValidateEmail } from '../compoment/checkValidate';
+import { API_User } from '../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
@@ -20,14 +24,50 @@ const LINE_MARGIN_HORIZONTAL = 6;
 
 const Line = () => <View style={styles.line} />;
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const [email, setEmail] = useState("")
+  const [errorEmail, setErrorEmail] = useState("")
+  const [errorPassword, setErrorPassword] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
-  // Cho 3s chuyển màn hình Main
-  const navigateToHome = () => {
-    navigation.replace('Main');
-  };
+  const checkValidateLogin = () => {
+    if (email.length <= 0) {
+      setErrorEmail("Email không được bỏ trống!")
+      return false
+    }
+    if (password.length <= 0) {
+      setErrorPassword("Password không được bỏ trống!")
+      return false
+    }
+    if (errorEmail !== "" || errorPassword !== "") {
+      return false
+    } else {
+      onLogin()
+    }
+  }
+
+  const onLogin = async () => {
+    const data = { email, password }
+    fetch(API_User + "signIn", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(repose => repose.json())
+      .then(data => {
+        if (data.error) {
+          setError(data.error)
+        } else {
+          AsyncStorage.setItem("user", JSON.stringify(data))
+          navigation.navigate("Main")
+        }
+      })
+      .catch(err => console.log(err));
+  }
 
   const navigateToSignup = () => {
     navigation.navigate('SigupScreen'); // Chuyển đến màn hình SignupScreen
@@ -46,23 +86,43 @@ const LoginScreen = ({navigation}) => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text style={{color: 'black'}}>Email</Text>
+          <Text style={{ color: 'black' }}>Email</Text>
           <TextInput
+            onChangeText={(text) => {
+              if (checkValidateEmail(text)) {
+                setEmail(text);
+                setErrorEmail("")
+              } else {
+                setErrorEmail("Email không hợp lệ!")
+                setEmail(text)
+              }
+            }}
             style={styles.edt}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
-        <View style={{marginTop: 16}}>
-          <Text style={{color: 'black'}}>Password</Text>
+        {errorEmail && <Text style={{ color: "red" }}>{errorEmail}</Text>}
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ color: 'black' }}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
               placeholder="Please Enter Your Password"
               secureTextEntry={!showPassword}
               keyboardType="default"
+              onChangeText={(text) => {
+                if (checkValidatePassword(text)) {
+                  setErrorPassword("")
+                  setPassword(text)
+                } else {
+                  setErrorPassword("Password không được quá 15 ký tự!")
+                  setPassword(text)
+                }
+              }}
             />
+
             <TouchableOpacity
               style={styles.togglePasswordButton}
               onPress={togglePassword}>
@@ -73,8 +133,12 @@ const LoginScreen = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
+          {errorPassword && <Text style={{ color: "red" }}>{errorPassword}</Text>}
         </View>
-        <Pressable style={styles.btnLog} onPress={navigateToHome}>
+        {error && <Text style={{ color: "red" }}>{error}</Text>}
+        <Pressable style={styles.btnLog} onPress={() => {
+          checkValidateLogin()
+        }}>
           <Text style={styles.titleLog}>Login</Text>
         </Pressable>
         <View
@@ -84,7 +148,7 @@ const LoginScreen = ({navigation}) => {
             marginTop: 32,
           }}>
           <Line />
-          <Text style={{color: 'black'}}> Or With </Text>
+          <Text style={{ color: 'black' }}> Or With </Text>
           <Line />
         </View>
         <View
@@ -93,8 +157,8 @@ const LoginScreen = ({navigation}) => {
             justifyContent: 'center',
             marginTop: '50%',
           }}>
-          <Text style={{color: '#999EA1'}}>Don’t have an account ? </Text>
-          <Text style={{color: '#242424'}} onPress={navigateToSignup}>
+          <Text style={{ color: '#999EA1' }}>Don’t have an account ? </Text>
+          <Text style={{ color: '#242424' }} onPress={navigateToSignup}>
             Sign Up
           </Text>
         </View>

@@ -22,6 +22,8 @@ import AccountScrren from './screens/Profile/AccountScrren';
 // Khai bao icon
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import InfoBlog from './screens/Order/InfoBlog';
+import addressScreen from './screens/Profile/addressScreen';
+import AddAddress from './screens/Profile/addAddress';
 
 // Noi khai bao chuyen man
 const Tab = createBottomTabNavigator();
@@ -135,16 +137,17 @@ const StackNavigator = () => {
           component={SlpastScreen}
           options={{headerShown: false}}
         />
+          <Stack.Screen
+          name="SigupScreen"
+          component={SigupScreen}
+          options={{headerShown: false}}
+        />
         <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}
           options={{headerShown: false}}
         />
-        <Stack.Screen
-          name="SigupScreen"
-          component={SigupScreen}
-          options={{headerShown: false}}
-        />
+      
         <Stack.Screen
           name="Main"
           component={BottomTabNavigator} // Include the BottomTabNavigator as a screen
@@ -173,6 +176,16 @@ const StackNavigator = () => {
         <Stack.Screen
           name="FavouriteScreen"
           component={FavouriteScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="addressScreen"
+          component={addressScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="AddAddress"
+          component={AddAddress}
           options={{headerShown: false}}
         />
         <Stack.Screen
