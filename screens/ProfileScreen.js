@@ -1,12 +1,11 @@
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
-// Khai bao icon
+import React, {useEffect} from 'react';
+import {View, Text, Image, Pressable, StyleSheet} from 'react-native';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // Chat bot
 import {
@@ -16,110 +15,104 @@ import {
 
 const ProfileScreen = ({navigation}) => {
   // Chat bot
-  React.useEffect(() => {
+  useEffect(() => {
     initialize(
-      'eyJzZXR0aW5nc191cmwiOiJodHRwczovL25vdjI2OTIuemVuZGVzay5jb20vbW9iaWxlX3Nka19hcGkvc2V0dGluZ3MvMDFIRDFWOTdSRldQQzRHU0M5SFhWS0cyUUguanNvbiJ9',
+      'eyJzZXR0aW5nc191cmwiOiJodHRwczovL2RlbW85MDcwLnplbmRlc2suY29tL21vYmlsZV9zZGtfYXBpL3NldHRpbmdzLzAxSEVDSkY0TUVEOTdKUzYyS04xWFZITU5LLmpzb24ifQ==',
     );
   }, []);
 
   return (
     <View style={styles.container}>
-      {/* Avatar, name, email */}
       <View style={styles.header}>
         <Pressable
-          style={styles.boderButtonHeader}
+          style={styles.avatarButton}
           onPress={() => navigation.navigate('EditAccountScreen')}>
           <Image
-            style={styles.boderAvatar}
+            style={styles.avatar}
             source={{
               uri: 'https://th.bing.com/th?id=ORMS.23668d8eba0da20c8b8e6464c32b46be&pid=Wdp&w=612&h=304&qlt=90&c=1&rs=1&dpr=1&p=0',
             }}
           />
-          <View style={styles.boderIcon}>
+          <View style={styles.editIcon}>
             <FontAwesome5 name="pen" size={15} color="#999999" />
           </View>
         </Pressable>
-        <Text style={styles.txtNameHeader}>Mr.Irtan</Text>
-        <View style={styles.txtEmailHeader}>
-          <Text style={{color: 'black'}}>krtolo727@gmail.com</Text>
+        <Text style={styles.name}>{'Mr.Irtan'}</Text>
+        <View style={styles.emailContainer}>
+          <Text style={styles.email}>{'krtolo727@gmail.com'}</Text>
         </View>
       </View>
-      {/* Button icon */}
-      <View style={styles.acticle}>
-        <Text style={styles.titlePro}>Sản phẩm</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{'Sản phẩm'}</Text>
         <Pressable
-          style={styles.buttonView}
-          onPress={() => navigation.navigate('OrderScreen1')}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          style={styles.button}
+          onPress={() => navigation.navigate('OrderHistory')}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <MaterialCommunityIcons name="shopping-outline" size={25} />
-              <Text style={styles.txt}>Đơn hàng</Text>
+              <Text style={styles.buttonText}>{'Lịch sử đơn hàng'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
         <Pressable
-          style={styles.buttonView2}
+          style={styles.button}
           onPress={() => navigation.navigate('FavouriteScreen')}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <AntDesign name="hearto" size={24} />
-              <Text style={styles.txt}>Đã thích</Text>
+              <Text style={styles.buttonText}>{'Đã thích'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
-        <Pressable style={styles.buttonView2} onPress={() => showMessaging()}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Pressable style={styles.button} onPress={showMessaging}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <Ionicons name="chatbox-ellipses-outline" size={24} />
-              <Text style={styles.txt}>Hỗ trợ với shop</Text>
+              <Text style={styles.buttonText}>{'Hỗ trợ với shop'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
       </View>
-      {/* Button icon */}
-      <View style={styles.aside}>
-        <Text style={styles.titlePro}>Tài khoản</Text>
-        <Pressable style={styles.buttonView2}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{'Tài khoản'}</Text>
+        <Pressable style={styles.button}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <FontAwesome5 name="map" size={24} />
-              <Text style={styles.txt}>Địa chỉ</Text>
+              <Text style={styles.buttonText}>{'Địa chỉ'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
         <Pressable
-          style={styles.buttonView}
+          style={styles.button}
           onPress={() => navigation.navigate('EditAccountScreen')}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <Feather name="user-check" size={24} />
-              <Text style={styles.txt}>Cập nhật thông tin</Text>
+              <Text style={styles.buttonText}>{'Cập nhật thông tin'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
         <Pressable
-          style={styles.buttonView2}
+          style={styles.button}
           onPress={() => navigation.navigate('AccountScrren')}>
-          <View style={styles.rowButton}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonIconContainer}>
               <SimpleLineIcons name="lock" size={24} />
-              <Text style={styles.txt}>Đổi mật khẩu</Text>
+              <Text style={styles.buttonText}>{'Đổi mật khẩu'}</Text>
             </View>
             <AntDesign name="right" size={17} color="gray" />
           </View>
         </Pressable>
-
-        {/* Button Logout */}
         <Pressable
-          style={styles.buttonLogout}
-          onPress={() => navigation.replace('LoginScreen')} // Chuyển đến màn hình SignupScreen
-        >
-          <Text style={styles.txtLogout}>LOG OUT</Text>
+          style={styles.logoutButton}
+          onPress={() => navigation.replace('LoginScreen')}>
+          <Text style={styles.logoutText}>{'LOG OUT'}</Text>
         </Pressable>
       </View>
     </View>
@@ -134,23 +127,23 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: '5%',
-    lignSelf: 'center',
+    alignSelf: 'center',
     alignItems: 'center',
   },
-  boderButtonHeader: {
+  avatarButton: {
     width: 85,
     height: 85,
     borderRadius: 100,
     justifyContent: 'center',
     backgroundColor: 'white',
   },
-  boderAvatar: {
+  avatar: {
     width: 70,
     height: 70,
     alignSelf: 'center',
     borderRadius: 100,
   },
-  boderIcon: {
+  editIcon: {
     width: 30,
     height: 30,
     bottom: 0,
@@ -161,13 +154,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
   },
-  txtNameHeader: {
+  name: {
     color: 'black',
     marginTop: '2%',
     fontSize: 20,
     fontWeight: '500',
   },
-  txtEmailHeader: {
+  emailContainer: {
     width: 180,
     height: 25,
     marginTop: '2%',
@@ -176,44 +169,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#DDDDDD',
   },
-  acticle: {
+  email: {
+    color: 'black',
+  },
+  section: {
     marginTop: '5%',
     marginHorizontal: '5%',
   },
-  aside: {
-    marginTop: '2.5%',
-    marginHorizontal: '5%',
-  },
-  titlePro: {
+  sectionTitle: {
     color: 'black',
     fontSize: 17,
     fontWeight: '500',
   },
-  buttonView: {
+  button: {
     marginTop: '3%',
     height: 45,
     borderRadius: 5,
     justifyContent: 'center',
     backgroundColor: 'white',
   },
-  buttonView2: {
-    marginTop: '1.5%',
-    height: 45,
-    borderRadius: 5,
-    justifyContent: 'center',
-    backgroundColor: 'white',
-  },
-  rowButton: {
+  buttonRow: {
     alignItems: 'center',
     flexDirection: 'row',
     marginHorizontal: '4%',
     justifyContent: 'space-between',
   },
-  txt: {
+  buttonIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonText: {
     left: '30%',
     color: 'black',
   },
-  buttonLogout: {
+  logoutButton: {
     height: 50,
     marginTop: '10%',
     borderRadius: 35,
@@ -221,7 +210,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     marginHorizontal: '4%',
   },
-  txtLogout: {
+  logoutText: {
     color: 'white',
     fontSize: 17,
     alignSelf: 'center',

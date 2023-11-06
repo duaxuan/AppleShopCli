@@ -2,15 +2,18 @@ import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import {
   View,
-  Text, // Import Text component
+  Text,
   StyleSheet,
   Image,
   TouchableOpacity,
   FlatList,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Swiper from 'react-native-swiper';
 import {API_Product, API_Type_Product} from '../API/getAPI';
 
 export const formatPrice = price => {
@@ -22,107 +25,119 @@ export const formatPrice = price => {
 };
 
 const HomeScreen = ({navigation}) => {
+  const [selectedCategory, setSelectedCategory] = useState('Macbook');
   const [DATADANHMUC, setDATADANHMUC] = useState([]);
   const [DATASANPHAM, setDATASANPHAM] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('Macbook');
+  const [refreshing, setRefreshing] = useState();
+
   const handleProductPress = product => {
-    // Chuyển hướng đến màn hình chi tiết sản phẩm và truyền thông tin sản phẩm
     navigation.navigate('ProductdetailsScreen', {product});
   };
 
-  const CategoryList = () => {
-    return (
-      <View style={styles.categoryList}>
-        {DATADANHMUC.map(category => (
-          <TouchableOpacity
-            style={[
-              styles.categoryItem,
-              selectedCategory === category.name
-                ? {borderBottomWidth: 1}
-                : null,
-            ]}
-            key={category._id}
-            onPress={() => setSelectedCategory(category.name)}>
-            <Image
-              style={styles.categoryImage}
-              source={{uri: category.image}}
-            />
-            <Text style={styles.categoryName}>{category.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
-  };
+  const CategoryItem = ({category}) => (
+    <TouchableOpacity
+      style={[
+        styles.categoryItem,
+        selectedCategory === category.name ? {borderBottomWidth: 1} : null,
+      ]}
+      onPress={() => setSelectedCategory(category.name)}>
+      <Image style={styles.categoryImage} source={{uri: category.image}} />
+      <Text style={styles.categoryName}>{category.name}</Text>
+    </TouchableOpacity>
+  );
 
-  const ProductList = () => {
-    return (
-      <FlatList
-        scrollEnabled={false}
-        data={DATASANPHAM[selectedCategory]}
-        keyExtractor={item => item._id}
-        numColumns={2}
-        contentContainerStyle={styles.productList}
-        renderItem={({item}) => (
-          <TouchableOpacity onPress={() => handleProductPress(item)}>
-            <View style={styles.productItem}>
-              <Image style={styles.productImage} source={{uri: item.image}} />
-              <Text style={styles.productName} numberOfLines={1}>
-                {item.name}
-              </Text>
-              <Text style={styles.productPrice} numberOfLines={1}>
-                {formatPrice(item.price)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    );
-  };
+  const CategoryList = () => (
+    <View style={styles.categoryList}>
+      {DATADANHMUC.map(category => (
+        <CategoryItem key={category._id} category={category} />
+      ))}
+    </View>
+  );
 
-  // Call api
-  const getApi = async isCheck => {
+  const ProductItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.productItem}
+      onPress={() => handleProductPress(item)}>
+      <Image style={styles.productImage} source={{uri: item.image}} />
+      <Text style={styles.productName} numberOfLines={1}>
+        {item.name}
+      </Text>
+      <Text style={styles.productPrice} numberOfLines={1}>
+        {formatPrice(item.price)}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const ProductList = () => (
+    <FlatList
+      data={DATASANPHAM[selectedCategory]}
+      keyExtractor={item => item._id}
+      numColumns={2}
+      renderItem={({item}) => <ProductItem item={item} />}
+    />
+  );
+
+  const getApi = async () => {
+    setRefreshing(true);
     try {
-      if (isCheck) {
-        const res = await axios.get(API_Product);
-        setDATASANPHAM(res.data.message);
-      } else {
-        const res = await axios.get(API_Type_Product);
-        setDATADANHMUC(res.data.message);
-      }
-      console.log(res.data.message);
+      const res1 = await axios.get(API_Product, {params: {role: 'User'}});
+      setDATASANPHAM(res1.data.message);
+      const res2 = await axios.get(API_Type_Product);
+      setDATADANHMUC(res2.data.message);
+
+      setRefreshing(false);
     } catch (error) {
-      console.log('Call api: ' + error.message);
+      console.error('Call api: ' + error.message);
     }
   };
 
   useEffect(() => {
-    // Lấy sản phẩm
-    getApi(true);
-    // Lấy loại sản phẩm
-    getApi(false);
+    getApi();
   }, []);
 
   return (
-    <View style={{backgroundColor: '#F0F0F0'}}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <FontAwesome name="apple" size={30} color="black" />
-            <Text style={styles.headerText}>AppleShop</Text>
-          </View>
-          <View style={styles.iconsContainer}>
-            <AntDesign
-              name="user"
-              size={24}
-              color="black"
-              onPress={() => navigation.navigate('Profile')}
-            />
-          </View>
+    <View style={{flex: 1}}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <FontAwesome name="apple" size={30} color="black" />
+          <Text style={styles.headerText}>AppleShop</Text>
         </View>
-        <Image style={styles.image} source={require('../assets/banner.png')} />
-        <CategoryList />
-        {selectedCategory && <ProductList />}
-      </ScrollView>
+        <View style={styles.iconsContainer}>
+          <Ionicons
+            name="search"
+            size={24}
+            color="black"
+            onPress={() => navigation.navigate('FavouriteScreen')}
+          />
+          <AntDesign
+            name="user"
+            size={24}
+            color="black"
+            onPress={() => navigation.navigate('Profile')}
+          />
+        </View>
+      </View>
+      <View>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={getApi} />
+          }
+          showsVerticalScrollIndicator={false}>
+          <Swiper style={styles.swiperContainer} autoplay>
+            {DATADANHMUC.map(category => (
+              <View key={category._id} style={styles.slide}>
+                <Image
+                  style={styles.slideImage}
+                  source={{uri: category.image}}
+                />
+                <Text style={styles.slideText}>{category.name}</Text>
+              </View>
+            ))}
+          </Swiper>
+          <CategoryList />
+        </ScrollView>
+      </View>
+      {selectedCategory && <ProductList />}
     </View>
   );
 };
@@ -147,24 +162,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconSearch: {
-    marginLeft: 15,
+  swiperContainer: {
+    height: 200,
   },
-  image: {
-    margin: 22,
-    width: '95%',
-    resizeMode: 'contain',
+  slide: {
+    flex: 1,
     justifyContent: 'center',
-    alignSelf: 'center',
+    alignItems: 'center',
+    margin: '2%',
+  },
+  slideImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 15,
+    resizeMode: 'cover',
+  },
+  slideText: {
+    position: 'absolute',
+    bottom: 20,
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   categoryList: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 15,
+    justifyContent: 'space-around',
+    marginBottom: '1%',
   },
   categoryItem: {
     alignItems: 'center',
-    width: 88,
+    width: '23%',
     height: 88,
     borderRadius: 5,
     justifyContent: 'center',
@@ -178,23 +205,17 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     color: 'black',
-    marginTop: 8,
+    marginTop: '2%',
     fontSize: 12,
     marginBottom: 5,
   },
-  productList: {
-    marginHorizontal: 15,
-    marginTop: '2%',
-    alignItems: 'center',
-  },
   productItem: {
+    width: '47%',
     alignItems: 'center',
-    width: 180,
+    backgroundColor: 'white',
+    padding: '2%',
+    margin: '1%',
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    margin: 10,
-    height: 180,
-    justifyContent: 'center',
   },
   productImage: {
     width: '85%',

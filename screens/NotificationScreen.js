@@ -1,59 +1,69 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {API_Blog} from '../API/getAPI';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import axios from 'axios';
+import {API_Blog} from '../API/getAPI';
 
 const NotificationScreen = ({navigation}) => {
-  //Thay bằng api
-  const [array, setArray] = useState([]);
+  const [array, setArray] = useState(null);
+  const [refreshing, setRefreshing] = useState();
 
-  // Call api
   const getApi = async () => {
+    setRefreshing(true);
     try {
       const res = await axios.get(API_Blog);
       setArray(res.data.message);
+      setRefreshing(false);
     } catch (error) {
-      console.log('Call api: ' + error.message);
+      console.error('Call api: ' + error.message);
     }
   };
 
   useEffect(() => {
-    // Lấy blog
     getApi();
   }, []);
+
+  const renderNotificationItem = ({item}) => (
+    <Pressable
+      style={styles.notiItem}
+      onPress={() => navigation.navigate('InfoBlog', {item: item})}>
+      <View style={styles.rowItem}>
+        <Image style={styles.imageItem} source={{uri: item.image}} />
+        <View style={styles.itemTextContainer}>
+          <Text style={styles.itemTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.itemInfo} numberOfLines={2}>
+            {item.desc}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.titleHeader}>Thông tin</Text>
       </View>
-      {/* FlatList notifi */}
       <FlatList
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={getApi} />
+        }
         data={array}
-        style={{marginTop: '2%'}}
-        renderItem={({item}) => (
-          <Pressable
-            style={styles.notiItem}
-            onPress={() => navigation.navigate('InfoBlog', {item: item})}>
-            <View style={styles.rowItem}>
-              <Image style={styles.imageItem} source={{uri: item.image}} />
-              <View style={{width: '70%'}}>
-                <Text style={styles.itemTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                <Text style={styles.itemInfo} numberOfLines={2}>
-                  {item.desc}
-                </Text>
-              </View>
-            </View>
-          </Pressable>
-        )}
+        style={styles.flatList}
+        renderItem={renderNotificationItem}
       />
     </View>
   );
 };
-
-export default NotificationScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -89,6 +99,9 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginHorizontal: '2%',
   },
+  itemTextContainer: {
+    width: '70%',
+  },
   itemTitle: {
     color: 'black',
     fontWeight: '500',
@@ -98,4 +111,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: '3%',
   },
+  flatList: {
+    marginTop: '2%',
+  },
 });
+
+export default NotificationScreen;

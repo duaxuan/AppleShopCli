@@ -17,23 +17,18 @@ const InfoBlog = ({navigation, route}) => {
       <ScrollView>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons
-              style={styles.backIcon}
-              name="arrow-back-sharp"
-              size={25}
-              color="#242424"
-            />
+            <Ionicons name="arrow-back-sharp" size={25} color="#242424" />
           </TouchableOpacity>
-          <Text style={styles.itemTitle}>Blog ShopApple</Text>
+          <Text style={styles.headerTitle}>Blog ShopApple</Text>
         </View>
 
         <Image style={styles.itemImage} source={{uri: item.image}} />
-        <View style={{padding: 20}}>
+        <View style={styles.content}>
           <Text style={styles.itemName}>{item.title}</Text>
-        </View>
-        <Text style={styles.sectionHeader}>Mô tả</Text>
-        <View style={styles.itemDesc}>
-          <Text style={{color: 'black'}}>{item.desc}</Text>
+          <Text style={styles.sectionHeader}>Mô tả</Text>
+          <View style={styles.itemDesc}>
+            <Text style={styles.descText}>{item.desc}</Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -46,12 +41,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    margin: '3%',
+    margin: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  itemTitle: {
-    left: '50%',
+  headerTitle: {
+    marginLeft: 'auto', // Aligns to the right
     fontSize: 20,
     color: 'black',
     fontWeight: '600',
@@ -59,10 +54,13 @@ const styles = StyleSheet.create({
   itemImage: {
     height: 300,
     width: '98%',
-    marginTop: '2%',
+    marginTop: 10,
     alignSelf: 'center',
     resizeMode: 'contain',
     borderRadius: 10,
+  },
+  content: {
+    paddingHorizontal: 20,
   },
   itemName: {
     fontSize: 21,
@@ -74,11 +72,13 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 20,
     fontWeight: 'bold',
-    marginLeft: 20,
+    marginTop: 10,
   },
   itemDesc: {
-    marginLeft: 20,
     marginTop: 10,
+  },
+  descText: {
+    color: 'black',
   },
 });
 

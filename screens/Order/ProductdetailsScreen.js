@@ -15,7 +15,7 @@ const ProductdetailsScreen = ({navigation, route}) => {
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
-    navigation.navigate('OrderScreen2', {
+    navigation.navigate('OrderPayScreen', {
       purchasedProduct: product,
       quantity,
     });
