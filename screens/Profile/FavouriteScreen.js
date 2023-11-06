@@ -6,13 +6,18 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  FlatList
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+import { API_Save_Product, API_User } from '../../API/getAPI';
 
-const FavouriteScreen = ({navigation}) => {
+const FavouriteScreen = ({ navigation }) => {
+  const [DATAYEUTHICH, setDATAYEUTHICH] = useState([])
+  const [idUser, setidUser] = useState("65427d2cb8ea0e39a4a00de4")
   const [search, setSearch] = useState('');
   const [array, setArray] = useState([
     {
@@ -38,7 +43,66 @@ const FavouriteScreen = ({navigation}) => {
       updated: '12/09/2023',
     },
   ]);
+  // call api lưu
+  const getApi = async isCheck => {
+    try {
+      const res = await axios.get(API_User);
+      setDATAYEUTHICH(res.data)
+    } catch (error) {
+      console.log("Post api: " + error.message);
+      
+    }
 
+  };
+  useEffect(() => {
+    getApi();
+    console.log(DATAYEUTHICH);
+  }, []);
+  const renderItemSave = ({ item }) => {
+    const [like, setLike] = useState(false);
+
+    return (
+      <View style={styles.listItem}>
+        <View style={styles.viewItem}>
+          <Image style={styles.avatarItem} source={{ uri: item.image }} />
+          <View style={{ right: '20%' }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.txtItemName}>{item.name}</Text>
+              <View style={styles.itemYear}>
+                <Text style={styles.txtYear}>2019</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.txtItemPrice}>
+                đ {item.price.toLocaleString().replace(/,/g, '.')}
+              </Text>
+              <Text style={styles.txtItemPrice2}>
+                đ {item.price.toLocaleString().replace(/,/g, '.')}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity onPress={() => setLike(!like)}>
+            <AntDesign
+              name={like ? 'heart' : 'hearto'}
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
+  // const ListSave = () => {
+  //   return (
+  //     <FlatList
+  //       scrollEnabled={false}
+  //       data={DATALUUSP}
+  //       keyExtractor={item => item._id}
+  //       renderItem={renderItemSave}
+
+  //     />
+  //   )
+  // }
   return (
     <View style={styles.container}>
       {/* Search, back */}
@@ -56,7 +120,7 @@ const FavouriteScreen = ({navigation}) => {
           />
           {search.length ? (
             <TouchableOpacity
-              style={{marginRight: '3%'}}
+              style={{ marginRight: '3%' }}
               onPress={() => setSearch('')}>
               <Feather name="x-circle" size={24} color="black" />
             </TouchableOpacity>
@@ -68,7 +132,7 @@ const FavouriteScreen = ({navigation}) => {
       </View>
       {/* List item */}
       <Text style={styles.title}>Your reuslt</Text>
-      {array.map((data, index) => {
+      {/* {array.map((data, index) => {
         const [like, setLike] = useState(false);
         return (
           <View key={index} style={styles.listItem}>
@@ -100,7 +164,14 @@ const FavouriteScreen = ({navigation}) => {
             </View>
           </View>
         );
-      })}
+      })} */}
+     {/* <FlatList
+        scrollEnabled={false}
+        data={DATALUUSP[idUser]}
+        keyExtractor={item => item._id}
+        renderItem={renderItemSave}
+
+      /> */}
     </View>
   );
 };

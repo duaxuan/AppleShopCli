@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,16 @@ import {
   ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {formatPrice} from '../HomeScreen';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const ProductdetailsScreen = ({navigation, route}) => {
-  const {product} = route.params;
+import { formatPrice } from '../HomeScreen';
+import { API_Favorite, API_Save_Product, API_UnFavorite } from '../../API/getAPI';
+import axios from 'axios';
+
+const ProductdetailsScreen = ({ navigation, route }) => {
+  const { product } = route.params;
   const [quantity, setQuantity] = useState(1);
-
+  const [like, setlike] = useState(product.like)
   const handleAddToCart = () => {
     navigation.navigate('OrderPayScreen', {
       purchasedProduct: product,
@@ -30,7 +34,38 @@ const ProductdetailsScreen = ({navigation, route}) => {
       setQuantity(quantity - 1);
     }
   };
+  const handleLike = async () => {
+    setlike(!like)
 
+    if(like){
+      try {
+        await axios.post(API_Favorite+"65427d2cb8ea0e39a4a00de4"+"/"+product._id,{
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+
+      console.log("Đã thêm vào list");
+
+      } catch (error) {
+        console.log("Post api yt: " + error.message);
+      }
+    }else{
+      try {
+        await axios.post(API_UnFavorite+"65427d2cb8ea0e39a4a00de4"+"/"+product._id,{
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+      console.log("Bỏ thêm");
+
+      } catch (error) {
+        console.log("Post api: " + error.message);
+      }
+    }
+    
+  }
+ 
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -42,17 +77,28 @@ const ProductdetailsScreen = ({navigation, route}) => {
             color="#242424"
           />
         </TouchableOpacity>
-        <Image style={styles.productImage} source={{uri: product.image}} />
+        <TouchableOpacity
+          onPress={handleLike}
+          >
+          <AntDesign
+            style={styles.heartIcon}
+            name={like ? 'heart' : 'hearto'}
+            size={24}
+            color="black"
+          />
+        </TouchableOpacity>
+        <Image style={styles.productImage} source={{ uri: product.image }} />
+
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{product.name}</Text>
           <Text style={styles.productPrice}>{formatPrice(product.price)}</Text>
         </View>
         <Text style={styles.sectionHeader}>Thông tin sản phẩm:</Text>
         <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>{product.description}</Text>
+          <Text style={{ color: 'black' }}>{product.description}</Text>
         </View>
         <View style={styles.productDetails}>
-          <Text style={{color: 'black'}}>Số lượng: {product.quantity}</Text>
+          <Text style={{ color: 'black' }}>Số lượng: {product.quantity}</Text>
         </View>
       </ScrollView>
       <View
@@ -147,6 +193,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
   },
+  heartIcon: {
+    marginTop: 20,
+    marginRight: 20,
+    alignSelf: 'flex-end'
+  }
 });
 
 export default ProductdetailsScreen;

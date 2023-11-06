@@ -5,3 +5,6 @@ export const API_User_Info = API_URL + '/information/';
 export const API_Blog = API_URL + '/blog/';
 export const API_Product = API_URL + '/product/';
 export const API_Type_Product = API_URL + '/product/type/';
+export const API_Favorite = API_URL + '/product/favorite/';
+export const API_UnFavorite = API_URL + '/product/unfavorite/';
+
