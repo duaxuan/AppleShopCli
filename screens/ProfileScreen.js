@@ -78,7 +78,11 @@ const ProfileScreen = ({navigation}) => {
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{'Tài khoản'}</Text>
-        <Pressable style={styles.button}>
+        <Pressable
+          onPress={() => {
+            navigation.navigate('AddressScreen');
+          }}
+          style={styles.button}>
           <View style={styles.buttonRow}>
             <View style={styles.buttonIconContainer}>
               <FontAwesome5 name="map" size={24} />

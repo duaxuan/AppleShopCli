@@ -21,6 +21,8 @@ import FavouriteScreen from './screens/Profile/FavouriteScreen';
 import EditAccountScreen from './screens/Profile/EditAccountScreen';
 import AccountScrren from './screens/Profile/AccountScrren';
 import InfoBlog from './screens/Order/InfoBlog';
+import AddressScreen from './screens/Profile/AddressScreen';
+import AddAddress from './screens/Profile/AddAddress';
 
 // Bottom Tab
 const Tab = createBottomTabNavigator();
@@ -133,6 +135,16 @@ const StackNavigator = () => (
       <Stack.Screen
         name="FavouriteScreen"
         component={FavouriteScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddressScreen"
+        component={AddressScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddAddress"
+        component={AddAddress}
         options={{headerShown: false}}
       />
       <Stack.Screen

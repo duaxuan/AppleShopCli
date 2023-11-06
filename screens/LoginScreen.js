@@ -10,6 +10,13 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {
+  checkValidatePassword,
+  checkValidateEmail,
+} from '../compoment/checkValidate';
+import {API_User} from '../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 // Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
@@ -22,11 +29,41 @@ const Line = () => <View style={styles.line} />;
 
 const LoginScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [errorEmail, setErrorEmail] = useState('');
+  const [errorPassword, setErrorPassword] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  // Cho 3s chuyển màn hình Main
-  const navigateToHome = () => {
-    navigation.replace('Main');
+  const checkValidateLogin = () => {
+    if (email.length <= 0) {
+      setErrorEmail('Email không được bỏ trống!');
+      return false;
+    }
+    if (password.length <= 0) {
+      setErrorPassword('Password không được bỏ trống!');
+      return false;
+    }
+    if (errorEmail !== '' || errorPassword !== '') {
+      return false;
+    } else {
+      onLogin();
+    }
+  };
+
+  const onLogin = async () => {
+    const data = {email, password};
+    try {
+      const res = await axios.post(`${API_User}signIn`, {data});
+      if (res.data.error) {
+        setError(res.data.error);
+      } else {
+        AsyncStorage.setItem('user', res.data);
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      console.log('Call api: ', error.message);
+    }
   };
 
   const navigateToSignup = () => {
@@ -48,12 +85,22 @@ const LoginScreen = ({navigation}) => {
         <View>
           <Text style={{color: 'black'}}>Email</Text>
           <TextInput
+            onChangeText={text => {
+              if (checkValidateEmail(text)) {
+                setEmail(text);
+                setErrorEmail('');
+              } else {
+                setErrorEmail('Email không hợp lệ!');
+                setEmail(text);
+              }
+            }}
             style={styles.edt}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
+        {errorEmail && <Text style={{color: 'red'}}>{errorEmail}</Text>}
         <View style={{marginTop: 16}}>
           <Text style={{color: 'black'}}>Password</Text>
           <View style={styles.passwordContainer}>
@@ -62,7 +109,17 @@ const LoginScreen = ({navigation}) => {
               placeholder="Please Enter Your Password"
               secureTextEntry={!showPassword}
               keyboardType="default"
+              onChangeText={text => {
+                if (checkValidatePassword(text)) {
+                  setErrorPassword('');
+                  setPassword(text);
+                } else {
+                  setErrorPassword('Password không được quá 15 ký tự!');
+                  setPassword(text);
+                }
+              }}
             />
+
             <TouchableOpacity
               style={styles.togglePasswordButton}
               onPress={togglePassword}>
@@ -73,8 +130,14 @@ const LoginScreen = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
+          {errorPassword && <Text style={{color: 'red'}}>{errorPassword}</Text>}
         </View>
-        <Pressable style={styles.btnLog} onPress={navigateToHome}>
+        {error && <Text style={{color: 'red'}}>{error}</Text>}
+        <Pressable
+          style={styles.btnLog}
+          onPress={() => {
+            checkValidateLogin();
+          }}>
           <Text style={styles.titleLog}>Login</Text>
         </Pressable>
         <View
