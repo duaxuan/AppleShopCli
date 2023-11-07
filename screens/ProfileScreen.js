@@ -12,6 +12,7 @@ import {
   initialize,
   showMessaging,
 } from '@robbywh/react-native-zendesk-messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({navigation}) => {
   // Chat bot
@@ -19,6 +20,18 @@ const ProfileScreen = ({navigation}) => {
     initialize(
       'eyJzZXR0aW5nc191cmwiOiJodHRwczovL2RlbW85MDcwLnplbmRlc2suY29tL21vYmlsZV9zZGtfYXBpL3NldHRpbmdzLzAxSEVDSkY0TUVEOTdKUzYyS04xWFZITU5LLmpzb24ifQ==',
     );
+  }, []);
+
+  const getApi = async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('user');
+    } catch (error) {
+      console.log('Call api: ' + error.message);
+    }
+  };
+
+  useEffect(() => {
+    getApi();
   }, []);
 
   return (
@@ -115,7 +128,10 @@ const ProfileScreen = ({navigation}) => {
         </Pressable>
         <Pressable
           style={styles.logoutButton}
-          onPress={() => navigation.replace('LoginScreen')}>
+          onPress={() => {
+            AsyncStorage.clear();
+            navigation.replace('LoginScreen');
+          }}>
           <Text style={styles.logoutText}>{'LOG OUT'}</Text>
         </Pressable>
       </View>

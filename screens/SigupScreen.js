@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,8 +10,13 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { API_User } from '../API/getAPI';
-import { checkValidateEmail, checkValidatePassword, checkValidatePhone } from '../compoment/checkValidate';
+import {API_User} from '../API/getAPI';
+import {
+  checkValidateEmail,
+  checkValidatePassword,
+  checkValidatePhone,
+} from '../compoment/checkValidate';
+import axios from 'axios';
 
 // Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
@@ -22,57 +27,46 @@ const LINE_MARGIN_HORIZONTAL = 6;
 
 const Line = () => <View style={styles.line}></View>;
 
-const SigupScreen = ({ navigation }) => {
+const SigupScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const [email, setEmail] = useState('')
-  const [errorEmail, setErrorEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [errorPhone, setErrorPhone] = useState('')
-  const [password, setPassword] = useState('')
-  const [errorPassword, setErrorPassword] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState('');
+  const [errorEmail, setErrorEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errorPhone, setErrorPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorPassword, setErrorPassword] = useState('');
+  const [error, setError] = useState('');
   const validateLogin = () => {
-
     if (email.length <= 0) {
-      setErrorEmail("Email không được bỏ trống!")
-      return false
-    }
-    else if (phone.length <= 0) {
-      setErrorPhone("Phone không được bỏ trống!")
-      return false
-    }
-    else if (password.length <= 0) {
-      setErrorPassword("Password không được bỏ trống!")
-      return false
-    }
-    else if (errorEmail !== "" || errorPassword !== "" || errorPhone !== "") {
-      return false
+      setErrorEmail('Email không được bỏ trống!');
+      return false;
+    } else if (phone.length <= 0) {
+      setErrorPhone('Phone không được bỏ trống!');
+      return false;
+    } else if (password.length <= 0) {
+      setErrorPassword('Password không được bỏ trống!');
+      return false;
+    } else if (errorEmail !== '' || errorPassword !== '' || errorPhone !== '') {
+      return false;
     } else {
-      onSignup()
+      onSignup();
     }
-  }
-
+  };
 
   const onSignup = async () => {
-    const data = { email, phone, password, role: "User" }
-    fetch(API_User + "signup", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json"
+    const data = {userName: email, phone, passWord: password, role: 'User'};
+    try {
+      const res = await axios.post(`${API_User}signup`, {data});
+      if (res.data.error) {
+        setError(res.data.error);
+      } else {
+        navigation.navigate('LoginScreen');
       }
-    })
-      .then(repose => repose.json())
-      .then(data => {
-        if (data.error) {
-          setError(data.error)
-        } else {
-          navigation.navigate("LoginScreen")
-        }
-      })
-      .catch(err => console.log(err));
-  }
+    } catch (error) {
+      console.log('Call api: ', error.message);
+    }
+  };
 
   const navigateToLogin = () => {
     navigation.navigate('LoginScreen'); // Chuyển đến màn hình SignupScreen
@@ -93,17 +87,16 @@ const SigupScreen = ({ navigation }) => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text style={{ color: 'black' }}>Email</Text>
+          <Text style={{color: 'black'}}>Email</Text>
           <TextInput
-            onChangeText={(text) => {
+            onChangeText={text => {
               if (checkValidateEmail(text)) {
                 setEmail(text);
-                setErrorEmail("")
+                setErrorEmail('');
               } else {
-                setErrorEmail("Email không hợp lệ!")
+                setErrorEmail('Email không hợp lệ!');
                 setEmail(text);
               }
-
             }}
             style={styles.edt}
             placeholder="Enter your email"
@@ -111,19 +104,19 @@ const SigupScreen = ({ navigation }) => {
             autoCapitalize="none"
           />
         </View>
-        {errorEmail && <Text style={{ color: "red" }}>{errorEmail}</Text>}
-        <View style={{ marginTop: 16 }}>
-          <Text style={{ color: 'black' }}>Phone Number</Text>
+        {errorEmail && <Text style={{color: 'red'}}>{errorEmail}</Text>}
+        <View style={{marginTop: 16}}>
+          <Text style={{color: 'black'}}>Phone Number</Text>
           <View style={styles.phoneInputContainer}>
             <Text style={styles.countryCode}>{countryPrefix}</Text>
             <TextInput
-              onChangeText={(text) => {
+              onChangeText={text => {
                 if (checkValidatePhone(text)) {
-                  setPhone(text)
-                  setErrorPhone("")
+                  setPhone(text);
+                  setErrorPhone('');
                 } else {
-                  setPhone(text)
-                  setErrorPhone("Số điện thoại không hợp lệ!")
+                  setPhone(text);
+                  setErrorPhone('Số điện thoại không hợp lệ!');
                 }
               }}
               style={styles.phoneNumberInput}
@@ -131,21 +124,20 @@ const SigupScreen = ({ navigation }) => {
               keyboardType="numeric"
             />
           </View>
-          {errorPhone && <Text style={{ color: "red" }}>{errorPhone}</Text>}
+          {errorPhone && <Text style={{color: 'red'}}>{errorPhone}</Text>}
         </View>
-        <View style={{ marginTop: 16 }}>
-          <Text style={{ color: 'black' }}>Password</Text>
+        <View style={{marginTop: 16}}>
+          <Text style={{color: 'black'}}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              onChangeText={(text) => {
+              onChangeText={text => {
                 if (checkValidatePassword(text)) {
-                  setPassword(text)
-                  setErrorPassword("")
+                  setPassword(text);
+                  setErrorPassword('');
                 } else {
-                  setErrorPassword("Password không được quá 15 ký tự")
-                  setPassword(text)
+                  setErrorPassword('Password không được quá 15 ký tự');
+                  setPassword(text);
                 }
-
               }}
               style={styles.passwordInput}
               placeholder="Please Enter Your Password"
@@ -162,14 +154,15 @@ const SigupScreen = ({ navigation }) => {
               />
             </TouchableOpacity>
           </View>
-          {errorPassword && <Text style={{ color: "red" }}>{errorPassword}</Text>}
+          {errorPassword && <Text style={{color: 'red'}}>{errorPassword}</Text>}
         </View>
-        {error && <Text style={{ color: "red", }}>{error}</Text>}
-        <Pressable onPress={() => {
-          if (validateLogin()) {
-            onSignup()
-          }
-        }}
+        {error && <Text style={{color: 'red'}}>{error}</Text>}
+        <Pressable
+          onPress={() => {
+            if (validateLogin()) {
+              onSignup();
+            }
+          }}
           style={styles.btnLog}>
           <Text style={styles.titleLog}>Sign Up</Text>
         </Pressable>
@@ -180,7 +173,7 @@ const SigupScreen = ({ navigation }) => {
             marginTop: 32,
           }}>
           <Line />
-          <Text style={{ color: 'black' }}> Or With </Text>
+          <Text style={{color: 'black'}}> Or With </Text>
           <Line />
         </View>
         <View
@@ -189,8 +182,8 @@ const SigupScreen = ({ navigation }) => {
             justifyContent: 'center',
             marginTop: '10%',
           }}>
-          <Text style={{ color: '#999EA1' }}>Already have an account ? </Text>
-          <Text style={{ color: '#242424' }} onPress={navigateToLogin}>
+          <Text style={{color: '#999EA1'}}>Already have an account ? </Text>
+          <Text style={{color: '#242424'}} onPress={navigateToLogin}>
             Login
           </Text>
         </View>

@@ -14,7 +14,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Swiper from 'react-native-swiper';
-import {API_Product, API_Type_Product} from '../API/getAPI';
+import {API_Product, API_Type_Product, API_User_Info} from '../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const formatPrice = price => {
   const formatter = new Intl.NumberFormat('vi-VN', {
@@ -80,10 +81,19 @@ const HomeScreen = ({navigation}) => {
   const getApi = async () => {
     setRefreshing(true);
     try {
-      const res1 = await axios.get(API_Product, {params: {role: 'User'}});
-      setDATASANPHAM(res1.data.message);
-      const res2 = await axios.get(API_Type_Product);
-      setDATADANHMUC(res2.data.message);
+      const idUser = await AsyncStorage.getItem('_idUser');
+      const role = await AsyncStorage.getItem('role');
+
+      const res1 = await axios.get(API_User_Info, {params: {idUser, role}});
+      if (!res1.data.message) {
+        console.warn('Hãy cập nhật thông tin để sử dụng dịch vụ của chúng tôi');
+        navigation.replace('EditAccountScreen');
+      }
+
+      const res2 = await axios.get(API_Product, {params: {role}});
+      setDATASANPHAM(res2.data.message);
+      const res3 = await axios.get(API_Type_Product);
+      setDATADANHMUC(res3.data.message);
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);

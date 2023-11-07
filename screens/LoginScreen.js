@@ -52,13 +52,13 @@ const LoginScreen = ({navigation}) => {
   };
 
   const onLogin = async () => {
-    const data = {email, password};
     try {
-      const res = await axios.post(`${API_User}signIn`, {data});
+      const res = await axios.post(`${API_User}signIn`, {email, password});
       if (res.data.error) {
         setError(res.data.error);
       } else {
-        AsyncStorage.setItem('user', res.data);
+        AsyncStorage.setItem('_idUser', res.data._id);
+        AsyncStorage.setItem('role', res.data.role);
         navigation.navigate('Main');
       }
     } catch (error) {
