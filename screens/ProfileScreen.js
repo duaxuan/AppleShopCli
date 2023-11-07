@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Image, Pressable, StyleSheet} from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,8 +13,11 @@ import {
   showMessaging,
 } from '@robbywh/react-native-zendesk-messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import {API_User_Info} from '../API/getAPI';
 
 const ProfileScreen = ({navigation}) => {
+  const [array, setArray] = useState();
   // Chat bot
   useEffect(() => {
     initialize(
@@ -24,7 +27,10 @@ const ProfileScreen = ({navigation}) => {
 
   const getApi = async () => {
     try {
-      const userDataString = await AsyncStorage.getItem('user');
+      const res = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
+      setArray(res.data.message);
     } catch (error) {
       console.log('Call api: ' + error.message);
     }
@@ -40,19 +46,21 @@ const ProfileScreen = ({navigation}) => {
         <Pressable
           style={styles.avatarButton}
           onPress={() => navigation.navigate('EditAccountScreen')}>
-          <Image
-            style={styles.avatar}
-            source={{
-              uri: 'https://th.bing.com/th?id=ORMS.23668d8eba0da20c8b8e6464c32b46be&pid=Wdp&w=612&h=304&qlt=90&c=1&rs=1&dpr=1&p=0',
-            }}
-          />
+          {array?.avatar && (
+            <Image
+              style={styles.avatar}
+              source={{
+                uri: array?.avatar,
+              }}
+            />
+          )}
           <View style={styles.editIcon}>
             <FontAwesome5 name="pen" size={15} color="#999999" />
           </View>
         </Pressable>
-        <Text style={styles.name}>{'Mr.Irtan'}</Text>
+        <Text style={styles.name}>{array?.fullName}</Text>
         <View style={styles.emailContainer}>
-          <Text style={styles.email}>{'krtolo727@gmail.com'}</Text>
+          <Text style={styles.email}>{array?.accountID?.email}</Text>
         </View>
       </View>
       <View style={styles.section}>
@@ -91,19 +99,6 @@ const ProfileScreen = ({navigation}) => {
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{'Tài khoản'}</Text>
-        <Pressable
-          onPress={() => {
-            navigation.navigate('AddressScreen');
-          }}
-          style={styles.button}>
-          <View style={styles.buttonRow}>
-            <View style={styles.buttonIconContainer}>
-              <FontAwesome5 name="map" size={24} />
-              <Text style={styles.buttonText}>{'Địa chỉ'}</Text>
-            </View>
-            <AntDesign name="right" size={17} color="gray" />
-          </View>
-        </Pressable>
         <Pressable
           style={styles.button}
           onPress={() => navigation.navigate('EditAccountScreen')}>
@@ -151,15 +146,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarButton: {
-    width: 85,
-    height: 85,
+    width: 100,
+    height: 100,
     borderRadius: 100,
     justifyContent: 'center',
     backgroundColor: 'white',
   },
   avatar: {
-    width: 70,
-    height: 70,
+    width: 90,
+    height: 90,
     alignSelf: 'center',
     borderRadius: 100,
   },

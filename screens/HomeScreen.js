@@ -81,16 +81,16 @@ const HomeScreen = ({navigation}) => {
   const getApi = async () => {
     setRefreshing(true);
     try {
-      const idUser = await AsyncStorage.getItem('_idUser');
-      const role = await AsyncStorage.getItem('role');
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
 
-      const res1 = await axios.get(API_User_Info, {params: {idUser, role}});
-      if (!res1.data.message) {
+      if (!res1.data.message.fullName) {
         console.warn('Hãy cập nhật thông tin để sử dụng dịch vụ của chúng tôi');
         navigation.replace('EditAccountScreen');
       }
 
-      const res2 = await axios.get(API_Product, {params: {role}});
+      const res2 = await axios.get(API_Product, {params: {role: 'User'}});
       setDATASANPHAM(res2.data.message);
       const res3 = await axios.get(API_Type_Product);
       setDATADANHMUC(res3.data.message);

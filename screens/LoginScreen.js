@@ -57,9 +57,12 @@ const LoginScreen = ({navigation}) => {
       if (res.data.error) {
         setError(res.data.error);
       } else {
-        AsyncStorage.setItem('_idUser', res.data._id);
-        AsyncStorage.setItem('role', res.data.role);
-        navigation.navigate('Main');
+        if (res.data.role != 'Shop') {
+          AsyncStorage.setItem('_idUser', res.data._id);
+          navigation.navigate('Main');
+        } else {
+          console.warn('Vui lòng đăng nhập với vai trò user');
+        }
       }
     } catch (error) {
       console.log('Call api: ', error.message);

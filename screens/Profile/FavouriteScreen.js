@@ -14,8 +14,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import {API_Favorite} from '../../API/getAPI';
-
-const USER_ID = '654682a665f5a0fe5eab8f93';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FavouriteScreen = ({navigation}) => {
   const [search, setSearch] = useState('');
@@ -32,7 +31,10 @@ const FavouriteScreen = ({navigation}) => {
 
   const putAPI_Like = async item => {
     try {
-      await axios.put(`${API_Favorite}${USER_ID}`, {productId: item._id});
+      await axios.put(
+        `${API_Favorite}${await AsyncStorage.getItem('_idUser')}`,
+        {productId: item._id},
+      );
       getAPI();
     } catch (error) {
       console.error('Put api: ' + error.message);
@@ -41,9 +43,11 @@ const FavouriteScreen = ({navigation}) => {
 
   const getAPI = async () => {
     try {
-      const res1 = await axios.get(`${API_Favorite}${USER_ID}`);
+      const res1 = await axios.get(
+        `${API_Favorite}${await AsyncStorage.getItem('_idUser')}`,
+      );
       const res2 = await axios.post(API_Favorite, {
-        productIds: res1.data['message'],
+        productIds: res1.data.message,
       });
       setArray(res2.data.message);
       handleSearch(search);

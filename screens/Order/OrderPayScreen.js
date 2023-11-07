@@ -11,19 +11,19 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatPrice} from '../HomeScreen';
-import {API_User, API_User_Info} from '../../API/getAPI';
+import {API_Product, API_User, API_User_Info} from '../../API/getAPI';
 import axios from 'axios';
-
-const USER_ID = '654682a665f5a0fe5eab8f93';
-const USER_ID_INFO = '65460fd7b1a47545e1894cfb';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrderPayScreen = ({navigation, route}) => {
   const {purchasedProduct, quantity} = route.params;
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState([]);
 
   const getAPI = async () => {
     try {
-      const res = await axios.get(`${API_User_Info}/${USER_ID}`);
+      const res = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
       setUserInfo(res.data.message);
     } catch (error) {
       console.log('Call api: ' + error.message);
@@ -37,25 +37,37 @@ const OrderPayScreen = ({navigation, route}) => {
         return;
       }
 
-      const orderResponse = await axios.post(`${API_User}pay`, {
-        userId: USER_ID_INFO,
+      let formData = new FormData();
+      formData.append('quantity', purchasedProduct.quantity - quantity);
+
+      let localUri = purchasedProduct.image;
+      let filename = localUri.split('/').pop();
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
+      formData.append('image', {
+        uri: purchasedProduct.image,
+        name: filename,
+        type,
+      });
+
+      await axios.post(`${API_User}pay`, {
+        userId: userInfo._id,
         productId: purchasedProduct._id,
         quantity,
         totalPrice: purchasedProduct.price * quantity,
       });
 
-      if (orderResponse.data.status) {
-        navigation.replace('Main');
-        ToastAndroid.show(
-          'Thanh toán thành công\nSản phẩm của bạn đang chờ duyệt!',
-          ToastAndroid.SHORT,
-        );
-      } else {
-        ToastAndroid.show(
-          'Thanh toán thất bại\nVui lòng kiểm tra đường truyền!',
-          ToastAndroid.SHORT,
-        );
-      }
+      await axios.put(`${API_Product}${purchasedProduct._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      navigation.replace('Main');
+      ToastAndroid.show(
+        'Thanh toán thành công\nSản phẩm của bạn đang chờ duyệt!',
+        ToastAndroid.SHORT,
+      );
     } catch (error) {
       console.error('Post api:' + error.message);
     }

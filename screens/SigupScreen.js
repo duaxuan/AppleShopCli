@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {API_User} from '../API/getAPI';
+import {API_User, API_User_Info} from '../API/getAPI';
 import {
   checkValidateEmail,
   checkValidatePassword,
@@ -37,6 +37,7 @@ const SigupScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const [error, setError] = useState('');
+
   const validateLogin = () => {
     if (email.length <= 0) {
       setErrorEmail('Email không được bỏ trống!');
@@ -55,12 +56,16 @@ const SigupScreen = ({navigation}) => {
   };
 
   const onSignup = async () => {
-    const data = {userName: email, phone, passWord: password, role: 'User'};
     try {
-      const res = await axios.post(`${API_User}signup`, {data});
+      const res = await axios.post(`${API_User}signup`, {
+        email,
+        passWord: password,
+        role: 'User',
+      });
       if (res.data.error) {
         setError(res.data.error);
       } else {
+        await axios.post(API_User_Info, {phone, accountID: res.data._id});
         navigation.navigate('LoginScreen');
       }
     } catch (error) {

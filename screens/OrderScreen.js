@@ -11,10 +11,9 @@ import {
   Dimensions,
 } from 'react-native';
 import axios from 'axios';
-import {API_User_Pay} from '../API/getAPI';
+import {API_User_Info, API_User_Pay} from '../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const USER_ROLE = 'User';
-const USER_ID = '65460fd7b1a47545e1894cfb';
 const {width} = Dimensions.get('window');
 
 const listTab = [
@@ -43,10 +42,17 @@ const OrderScreen1 = ({navigation}) => {
   const fetchData = async () => {
     setRefreshing(true);
     try {
-      const res = await axios.get(API_User_Pay, {
-        params: {role: USER_ROLE, userId: USER_ID},
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
       });
-      setArray(res.data.message);
+
+      const res2 = await axios.get(API_User_Pay, {
+        params: {
+          role: 'User',
+          userId: res1.data.message._id,
+        },
+      });
+      setArray(res2.data.message);
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);
@@ -69,6 +75,10 @@ const OrderScreen1 = ({navigation}) => {
       console.error('Put API: ' + error.message);
     }
   };
+
+  useEffect(() => {
+    fetchData(status);
+  }, []);
 
   const renderItem = array => (
     <FlatList
@@ -131,7 +141,7 @@ const OrderScreen1 = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container} onLayout={() => fetchData(status)}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.titleHeader}>Thông tin đơn hàng</Text>
       </View>

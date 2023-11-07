@@ -12,8 +12,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
 import {API_Favorite} from '../../API/getAPI';
 import axios from 'axios';
-
-const USER_ID = '654682a665f5a0fe5eab8f93';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductdetailsScreen = ({navigation, route}) => {
   const {product} = route.params;
@@ -21,10 +20,14 @@ const ProductdetailsScreen = ({navigation, route}) => {
   const [like, setLike] = useState(false);
 
   const handleAddToCart = () => {
-    navigation.navigate('OrderPayScreen', {
-      purchasedProduct: product,
-      quantity,
-    });
+    if (product.quantity >= 1) {
+      navigation.navigate('OrderPayScreen', {
+        purchasedProduct: product,
+        quantity,
+      });
+    } else {
+      console.warn('Sản phẩm đã hết hàng');
+    }
   };
 
   const handleIncrementQuantity = () => {
@@ -41,7 +44,10 @@ const ProductdetailsScreen = ({navigation, route}) => {
 
   const putAPI_Like = async () => {
     try {
-      await axios.put(`${API_Favorite}${USER_ID}`, {productId: product._id});
+      await axios.put(
+        `${API_Favorite}${await AsyncStorage.getItem('_idUser')}`,
+        {productId: product._id},
+      );
       setLike(!like);
     } catch (error) {
       console.error('Call api: ' + error.message);
@@ -50,11 +56,11 @@ const ProductdetailsScreen = ({navigation, route}) => {
 
   const getAPI = async () => {
     try {
-      const res = await axios.get(`${API_Favorite}${USER_ID}`);
-      const isCheck = res.data['message'].filter(id => id == product._id);
-      if (isCheck.length) {
-        setLike(true);
-      }
+      const res = await axios.get(
+        `${API_Favorite}${await AsyncStorage.getItem('_idUser')}`,
+      );
+      const isCheck = res.data.message.includes(product._id);
+      if (isCheck) setLike(true);
     } catch (error) {
       console.error('Call api: ' + error.message);
     }
@@ -92,7 +98,7 @@ const ProductdetailsScreen = ({navigation, route}) => {
         </View>
         <View style={styles.productDetails}>
           <Text style={styles.productDetailsText}>
-            Số lượng: {product.quantity}
+            Số lượng: {product.quantity ? product.quantity : 'hết hàng'}
           </Text>
         </View>
       </ScrollView>

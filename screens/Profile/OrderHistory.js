@@ -12,9 +12,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
 import {API_User_Pay} from '../../API/getAPI';
 import axios from 'axios';
-
-const USER_ROLE = 'User';
-const USER_ID = '65460fd7b1a47545e1894cfb';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrderHistory = ({navigation}) => {
   const [refreshing, setRefreshing] = useState();
@@ -46,7 +44,10 @@ const OrderHistory = ({navigation}) => {
     setRefreshing(true);
     try {
       const res = await axios.get(API_User_Pay, {
-        params: {role: USER_ROLE, userId: USER_ID},
+        params: {
+          role: 'User',
+          userId: await AsyncStorage.getItem('_idUser'),
+        },
       });
       setArray(res.data.message);
       setRefreshing(false);
@@ -70,16 +71,22 @@ const OrderHistory = ({navigation}) => {
         />
         <Text style={styles.txtHeader}>Lịch sử mua hàng</Text>
       </View>
-      <FlatList
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={getApi} />
-        }
-        showsVerticalScrollIndicator={false}
-        data={array['Đã giao']}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.flatListContent}
-      />
+      {array['Đã giao'].length ? (
+        <FlatList
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={getApi} />
+          }
+          showsVerticalScrollIndicator={false}
+          data={array['Đã giao']}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContent}
+        />
+      ) : (
+        <Text style={{textAlign: 'center', top: '30%'}}>
+          Bạn chưa có đơn hàng nào hoàn thành
+        </Text>
+      )}
     </View>
   );
 };

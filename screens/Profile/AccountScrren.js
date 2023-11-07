@@ -4,17 +4,25 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useCallback, useState} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
+import axios from 'axios';
+import {API_User} from '../../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AccountScrren = ({navigation}) => {
   const [showPasswordOld, setShowPasswordOld] = useState(false);
   const [showPasswordNew, setShowPasswordNew] = useState(false);
   const [showPasswordRe, setShowPasswordRe] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [reNewPassword, setReNewPassword] = useState('');
+  const [error, setError] = useState('');
 
   const togglePasswordOld = useCallback(() => {
     setShowPasswordOld(prevShowPassword => !prevShowPassword);
@@ -27,6 +35,35 @@ const AccountScrren = ({navigation}) => {
   const togglePasswordRe = useCallback(() => {
     setShowPasswordRe(prevShowPassword => !prevShowPassword);
   }, []);
+
+  const handleChangePassword = async () => {
+    if (!oldPassword || !newPassword || !reNewPassword) {
+      setError('Vui lòng nhập đủ các trường dữ liệu');
+      return;
+    }
+    if (newPassword !== reNewPassword) {
+      setError('Mật khẩu mới không khớp nhau');
+      return;
+    }
+
+    try {
+      const res = await axios.put(
+        `${API_User}${await AsyncStorage.getItem('_idUser')}`,
+        {
+          oldPassword,
+          newPassword,
+        },
+      );
+      if (res.data.status) {
+        ToastAndroid.show('Thay đổi mật khẩu thành công', ToastAndroid.SHORT);
+        navigation.replace('Main', {screen: 'Profile'});
+      } else {
+        setError(res.data.message);
+      }
+    } catch (error) {
+      console.error('Put api: ' + error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,6 +88,7 @@ const AccountScrren = ({navigation}) => {
             <View style={styles.passwordActicle}>
               <TextInput
                 style={styles.passwordInput}
+                onChangeText={setOldPassword}
                 placeholder="Enter your old password"
                 secureTextEntry={!showPasswordOld}
                 keyboardType="default"
@@ -72,6 +110,7 @@ const AccountScrren = ({navigation}) => {
             <View style={styles.passwordActicle}>
               <TextInput
                 style={styles.passwordInput}
+                onChangeText={setNewPassword}
                 placeholder="Enter your new password"
                 secureTextEntry={!showPasswordNew}
                 keyboardType="default"
@@ -93,6 +132,7 @@ const AccountScrren = ({navigation}) => {
             <View style={styles.passwordActicle}>
               <TextInput
                 style={styles.passwordInput}
+                onChangeText={setReNewPassword}
                 placeholder="Enter re_new password"
                 secureTextEntry={!showPasswordRe}
                 keyboardType="default"
@@ -108,7 +148,8 @@ const AccountScrren = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-          <Pressable style={styles.btnChange}>
+          {error && <Text style={{color: 'red'}}>{error}</Text>}
+          <Pressable style={styles.btnChange} onPress={handleChangePassword}>
             <Text style={styles.txtChange}>Change</Text>
           </Pressable>
         </View>
@@ -167,7 +208,7 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: 'black',
     borderRadius: 10,
-    marginTop: '20%',
+    marginTop: '15%',
     justifyContent: 'center',
     alignItems: 'center',
   },
