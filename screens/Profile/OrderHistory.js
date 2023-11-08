@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
-import {API_User_Pay} from '../../API/getAPI';
+import {API_User_Info, API_User_Pay} from '../../API/getAPI';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -31,7 +31,9 @@ const OrderHistory = ({navigation}) => {
       />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.productId.name}</Text>
-        <Text style={styles.detail}>{item.productId.description}</Text>
+        <Text style={styles.detail} numberOfLines={5}>
+          {item.productId.description}
+        </Text>
         <View style={styles.infoContainer}>
           <Text style={styles.quantity}>Đã mua: {item.quantity}</Text>
           <Text style={styles.price}>{formatPrice(item.totalPrice)}</Text>
@@ -43,13 +45,19 @@ const OrderHistory = ({navigation}) => {
   const getApi = async () => {
     setRefreshing(true);
     try {
-      const res = await axios.get(API_User_Pay, {
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
+
+      const res2 = await axios.get(API_User_Pay, {
         params: {
           role: 'User',
-          userId: await AsyncStorage.getItem('_idUser'),
+          userId: res1.data.message._id,
         },
       });
-      setArray(res.data.message);
+
+      setArray(res2.data.message);
+      console.log(array);
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);

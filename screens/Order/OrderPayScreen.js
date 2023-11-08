@@ -11,7 +11,7 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatPrice} from '../HomeScreen';
-import {API_Product, API_User, API_User_Info} from '../../API/getAPI';
+import {API_Product, API_User_Info, API_User_Pay} from '../../API/getAPI';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -50,7 +50,7 @@ const OrderPayScreen = ({navigation, route}) => {
         type,
       });
 
-      await axios.post(`${API_User}pay`, {
+      await axios.post(API_User_Pay, {
         userId: userInfo._id,
         productId: purchasedProduct._id,
         quantity,
