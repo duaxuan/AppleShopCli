@@ -10,7 +10,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
-import {API_Favorite} from '../../API/getAPI';
+import {API_Favorite, API_URL} from '../../API/getAPI';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -86,7 +86,10 @@ const ProductdetailsScreen = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
 
-        <Image style={styles.productImage} source={{uri: product.image}} />
+        <Image
+          style={styles.productImage}
+          source={{uri: `${API_URL}${product.image}`}}
+        />
 
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{product.name}</Text>

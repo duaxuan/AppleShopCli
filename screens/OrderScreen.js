@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import axios from 'axios';
-import {API_User_Info, API_User_Pay} from '../API/getAPI';
+import {API_URL, API_User_Info, API_User_Pay} from '../API/getAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width} = Dimensions.get('window');
@@ -87,7 +87,10 @@ const OrderScreen1 = ({navigation}) => {
       data={array[status]}
       renderItem={({item}) => (
         <View style={styles.viewItem}>
-          <Image style={styles.imgItem} source={{uri: item.productId.image}} />
+          <Image
+            style={styles.imgItem}
+            source={{uri: `${API_URL}${item.productId.image}`}}
+          />
           <View style={{left: '5%', flex: 1}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>

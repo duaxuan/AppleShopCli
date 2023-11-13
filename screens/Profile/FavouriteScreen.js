@@ -13,7 +13,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import {API_Favorite} from '../../API/getAPI';
+import {API_Favorite, API_URL} from '../../API/getAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FavouriteScreen = ({navigation}) => {
@@ -101,7 +101,10 @@ const FavouriteScreen = ({navigation}) => {
             }
             style={styles.listItem}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Image style={styles.avatarItem} source={{uri: item.image}} />
+              <Image
+                style={styles.avatarItem}
+                source={{uri: `${API_URL}${item.image}`}}
+              />
               <View style={{width: '55%', left: '10%'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Text numberOfLines={1} style={styles.txtItemName}>

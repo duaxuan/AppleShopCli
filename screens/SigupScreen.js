@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {API_User, API_User_Info} from '../API/getAPI';
@@ -37,6 +38,7 @@ const SigupScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const [error, setError] = useState('');
+  const [isCheck, setIscheck] = useState(false);
 
   const validateLogin = () => {
     if (email.length <= 0) {
@@ -56,6 +58,7 @@ const SigupScreen = ({navigation}) => {
   };
 
   const onSignup = async () => {
+    setIscheck(true);
     try {
       const res = await axios.post(`${API_User}signup`, {
         email,
@@ -68,7 +71,9 @@ const SigupScreen = ({navigation}) => {
         await axios.post(API_User_Info, {phone, accountID: res.data._id});
         navigation.navigate('LoginScreen');
       }
+      setIscheck(false);
     } catch (error) {
+      setIscheck(false);
       console.log('Call api: ', error.message);
     }
   };
@@ -169,7 +174,11 @@ const SigupScreen = ({navigation}) => {
             }
           }}
           style={styles.btnLog}>
-          <Text style={styles.titleLog}>Sign Up</Text>
+          {isCheck ? (
+            <ActivityIndicator size={'small'} color={'white'} />
+          ) : (
+            <Text style={styles.titleLog}>Sign Up</Text>
+          )}
         </Pressable>
         <View
           style={{

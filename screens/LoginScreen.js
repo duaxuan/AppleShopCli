@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
@@ -34,6 +35,7 @@ const LoginScreen = ({navigation}) => {
   const [errorPassword, setErrorPassword] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isCheck, setIsCheck] = useState(false);
 
   const checkValidateLogin = () => {
     if (email.length <= 0) {
@@ -52,6 +54,7 @@ const LoginScreen = ({navigation}) => {
   };
 
   const onLogin = async () => {
+    setIsCheck(true);
     try {
       const res = await axios.post(`${API_User}signIn`, {email, password});
       if (res.data.error) {
@@ -64,7 +67,9 @@ const LoginScreen = ({navigation}) => {
           console.warn('Vui lòng đăng nhập với vai trò user');
         }
       }
+      setIsCheck(false);
     } catch (error) {
+      setIsCheck(false);
       console.log('Call api: ', error.message);
     }
   };
@@ -141,7 +146,11 @@ const LoginScreen = ({navigation}) => {
           onPress={() => {
             checkValidateLogin();
           }}>
-          <Text style={styles.titleLog}>Login</Text>
+          {isCheck ? (
+            <ActivityIndicator size={'small'} color={'white'} />
+          ) : (
+            <Text style={styles.titleLog}>Login</Text>
+          )}
         </Pressable>
         <View
           style={{
@@ -160,7 +169,10 @@ const LoginScreen = ({navigation}) => {
             marginTop: '50%',
           }}>
           <Text style={{color: '#999EA1'}}>Don’t have an account ? </Text>
-          <Text style={{color: '#242424'}} onPress={navigateToSignup}>
+          <Text
+            style={{color: '#242424'}}
+            onPress={navigateToSignup}
+            disabled={isCheck}>
             Sign Up
           </Text>
         </View>

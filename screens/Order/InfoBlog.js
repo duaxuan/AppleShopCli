@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {API_URL} from '../../API/getAPI';
 
 const InfoBlog = ({navigation, route}) => {
   const {item} = route.params;
@@ -22,7 +23,10 @@ const InfoBlog = ({navigation, route}) => {
           <Text style={styles.headerTitle}>Blog ShopApple</Text>
         </View>
 
-        <Image style={styles.itemImage} source={{uri: item.image}} />
+        <Image
+          style={styles.itemImage}
+          source={{uri: `${API_URL}${item.image}`}}
+        />
         <View style={styles.content}>
           <Text style={styles.itemName}>{item.title}</Text>
           <Text style={styles.sectionHeader}>Mô tả</Text>

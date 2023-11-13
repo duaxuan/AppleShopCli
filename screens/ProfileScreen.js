@@ -14,7 +14,7 @@ import {
 } from '@robbywh/react-native-zendesk-messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {API_User_Info} from '../API/getAPI';
+import {API_URL, API_User_Info} from '../API/getAPI';
 
 const ProfileScreen = ({navigation}) => {
   const [array, setArray] = useState();
@@ -50,7 +50,7 @@ const ProfileScreen = ({navigation}) => {
             <Image
               style={styles.avatar}
               source={{
-                uri: array?.avatar,
+                uri: `${API_URL}${array?.avatar}`,
               }}
             />
           )}

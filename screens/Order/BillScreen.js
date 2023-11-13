@@ -11,7 +11,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {formatPrice} from '../HomeScreen';
 import axios from 'axios';
-import {API_User_Pay} from '../../API/getAPI';
+import {API_URL, API_User_Pay} from '../../API/getAPI';
 
 const InfoBlog = ({navigation, route}) => {
   const {item} = route.params;
@@ -40,7 +40,10 @@ const InfoBlog = ({navigation, route}) => {
           <Text style={styles.headerTitle}>Hóa đơn</Text>
         </View>
 
-        <Image style={styles.itemImage} source={{uri: item.productId.image}} />
+        <Image
+          style={styles.itemImage}
+          source={{uri: `${API_URL}${item.productId.image}`}}
+        />
         <View style={styles.content}>
           <Text style={styles.itemName}>{item.productId.name}</Text>
           <Text style={styles.sectionHeader}>Mô tả</Text>

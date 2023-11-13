@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
-import {API_User_Info, API_User_Pay} from '../../API/getAPI';
+import {API_URL, API_User_Info, API_User_Pay} from '../../API/getAPI';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -26,7 +26,7 @@ const OrderHistory = ({navigation}) => {
       style={styles.itemContainer}>
       <Image
         style={styles.image}
-        source={{uri: item.productId.image}}
+        source={{uri: `${API_URL}${item.productId.image}`}}
         resizeMode="contain"
       />
       <View style={styles.textContainer}>
@@ -57,7 +57,6 @@ const OrderHistory = ({navigation}) => {
       });
 
       setArray(res2.data.message);
-      console.log(array);
       setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);

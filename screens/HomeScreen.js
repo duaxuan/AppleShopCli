@@ -14,7 +14,12 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Swiper from 'react-native-swiper';
-import {API_Product, API_Type_Product, API_User_Info} from '../API/getAPI';
+import {
+  API_Product,
+  API_Type_Product,
+  API_URL,
+  API_User_Info,
+} from '../API/getAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const formatPrice = price => {
@@ -42,7 +47,10 @@ const HomeScreen = ({navigation}) => {
         selectedCategory === category.name ? {borderBottomWidth: 1} : null,
       ]}
       onPress={() => setSelectedCategory(category.name)}>
-      <Image style={styles.categoryImage} source={{uri: category.image}} />
+      <Image
+        style={styles.categoryImage}
+        source={{uri: `${API_URL}${category.image}`}}
+      />
       <Text style={styles.categoryName}>{category.name}</Text>
     </TouchableOpacity>
   );
@@ -59,7 +67,10 @@ const HomeScreen = ({navigation}) => {
     <TouchableOpacity
       style={styles.productItem}
       onPress={() => handleProductPress(item)}>
-      <Image style={styles.productImage} source={{uri: item.image}} />
+      <Image
+        style={styles.productImage}
+        source={{uri: `${API_URL}${item.image}`}}
+      />
       <Text style={styles.productName} numberOfLines={1}>
         {item.name}
       </Text>
@@ -137,7 +148,7 @@ const HomeScreen = ({navigation}) => {
               <View key={category._id} style={styles.slide}>
                 <Image
                   style={styles.slideImage}
-                  source={{uri: category.image}}
+                  source={{uri: `${API_URL}${category.image}`}}
                 />
                 <Text style={styles.slideText}>{category.name}</Text>
               </View>

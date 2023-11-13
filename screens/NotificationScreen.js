@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import axios from 'axios';
-import {API_Blog} from '../API/getAPI';
+import {API_Blog, API_URL} from '../API/getAPI';
 
 const NotificationScreen = ({navigation}) => {
   const [array, setArray] = useState(null);
@@ -35,7 +35,10 @@ const NotificationScreen = ({navigation}) => {
       style={styles.notiItem}
       onPress={() => navigation.navigate('InfoBlog', {item: item})}>
       <View style={styles.rowItem}>
-        <Image style={styles.imageItem} source={{uri: item.image}} />
+        <Image
+          style={styles.imageItem}
+          source={{uri: `${API_URL}${item.image}`}}
+        />
         <View style={styles.itemTextContainer}>
           <Text style={styles.itemTitle} numberOfLines={1}>
             {item.title}

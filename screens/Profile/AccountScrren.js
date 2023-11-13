@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
@@ -23,6 +24,7 @@ const AccountScrren = ({navigation}) => {
   const [newPassword, setNewPassword] = useState('');
   const [reNewPassword, setReNewPassword] = useState('');
   const [error, setError] = useState('');
+  const [isCheck, setIsCheck] = useState(false);
 
   const togglePasswordOld = useCallback(() => {
     setShowPasswordOld(prevShowPassword => !prevShowPassword);
@@ -46,6 +48,8 @@ const AccountScrren = ({navigation}) => {
       return;
     }
 
+    setIsCheck(true);
+
     try {
       const res = await axios.put(
         `${API_User}${await AsyncStorage.getItem('_idUser')}`,
@@ -60,7 +64,9 @@ const AccountScrren = ({navigation}) => {
       } else {
         setError(res.data.message);
       }
+      setIsCheck(false);
     } catch (error) {
+      setIsCheck(false);
       console.error('Put api: ' + error.message);
     }
   };
@@ -149,8 +155,15 @@ const AccountScrren = ({navigation}) => {
             </View>
           </View>
           {error && <Text style={{color: 'red'}}>{error}</Text>}
-          <Pressable style={styles.btnChange} onPress={handleChangePassword}>
-            <Text style={styles.txtChange}>Change</Text>
+          <Pressable
+            disabled={isCheck}
+            style={styles.btnChange}
+            onPress={handleChangePassword}>
+            {isCheck ? (
+              <ActivityIndicator size={'small'} color={'white'} />
+            ) : (
+              <Text style={styles.txtChange}>Change</Text>
+            )}
           </Pressable>
         </View>
       </KeyboardAvoidingView>

@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   PermissionsAndroid,
@@ -15,7 +16,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {API_User_Info} from '../../API/getAPI';
+import {API_URL, API_User_Info} from '../../API/getAPI';
 import {launchCamera} from 'react-native-image-picker';
 
 const EditAccountScreen = ({navigation}) => {
@@ -26,6 +27,7 @@ const EditAccountScreen = ({navigation}) => {
   const [address, setAddress] = useState('');
   const [birthday, setBirthday] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isCheck, setIsCheck] = useState(false);
 
   const openCamera = async () => {
     try {
@@ -50,6 +52,8 @@ const EditAccountScreen = ({navigation}) => {
       return;
     }
 
+    setIsCheck(true);
+
     let formData = new FormData();
     formData.append('fullName', fullName);
     formData.append('address', address);
@@ -71,7 +75,9 @@ const EditAccountScreen = ({navigation}) => {
 
       ToastAndroid.show('Lưu thông tin thành công', ToastAndroid.SHORT);
       navigation.replace('Main');
+      setIsCheck(false);
     } catch (error) {
+      setIsCheck(false);
       console.log('Post api: ' + error.message);
     }
   };
@@ -82,7 +88,7 @@ const EditAccountScreen = ({navigation}) => {
         params: {accountID: await AsyncStorage.getItem('_idUser')},
       });
       setIdInfo(res.data.message._id);
-      setAvatar({uri: res.data.message?.avatar});
+      setAvatar({uri: `${API_URL}${res.data.message?.avatar}`});
       setFullName(res.data.message?.fullName);
       setAddress(res.data.message?.address);
       setBirthday(res.data.message?.birthday);
@@ -181,8 +187,15 @@ const EditAccountScreen = ({navigation}) => {
               />
             </View>
           </View>
-          <Pressable style={styles.btnUpdate} onPress={handleUpdate}>
-            <Text style={styles.txtUpdate}>Update</Text>
+          <Pressable
+            disabled={isCheck}
+            style={styles.btnUpdate}
+            onPress={handleUpdate}>
+            {isCheck ? (
+              <ActivityIndicator size={'small'} color={'white'} />
+            ) : (
+              <Text style={styles.txtUpdate}>Update</Text>
+            )}
           </Pressable>
         </View>
       </KeyboardAvoidingView>
