@@ -61,10 +61,26 @@ const LoginScreen = ({navigation}) => {
         AsyncStorage.setItem('role', res.data.role);
         navigation.navigate('Main');
       }
+<<<<<<< Updated upstream
     } catch (error) {
       console.log('Call api: ', error.message);
     }
   };
+=======
+    })
+      .then(repose => repose.json())
+      .then(data => {
+        if (data.error) {
+          setError(data.error)
+        } else {
+          AsyncStorage.setItem("user", JSON.stringify(data))
+          console.log()
+          navigation.navigate("Main")
+        }
+      })
+      .catch(err => console.log(err));
+  }
+>>>>>>> Stashed changes
 
   const navigateToSignup = () => {
     navigation.navigate('SigupScreen'); // Chuyển đến màn hình SignupScreen
