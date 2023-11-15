@@ -81,7 +81,7 @@ const ProductdetailsScreen = ({navigation, route}) => {
             <AntDesign
               name={like ? 'heart' : 'hearto'}
               size={24}
-              color="black"
+              color={like ? 'red' : 'black'}
             />
           </TouchableOpacity>
         </View>
@@ -131,17 +131,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    alignItems: 'center',
     flexDirection: 'row',
-    height: 40,
-    padding: '2%',
     justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: '#fff',
   },
   productImage: {
     height: 300,
-    width: '98%',
-    marginTop: '2%',
-    alignSelf: 'center',
+    width: '100%',
     resizeMode: 'contain',
     borderRadius: 10,
   },
@@ -151,7 +148,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 24,
     color: 'black',
-    fontWeight: '500',
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   productPrice: {

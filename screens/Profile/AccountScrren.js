@@ -60,7 +60,7 @@ const AccountScrren = ({navigation}) => {
       );
       if (res.data.status) {
         ToastAndroid.show('Thay đổi mật khẩu thành công', ToastAndroid.SHORT);
-        navigation.replace('Main', {screen: 'Profile'});
+        navigation.goBack();
       } else {
         setError(res.data.message);
       }

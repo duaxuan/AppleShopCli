@@ -5,8 +5,7 @@ import {
   Text,
   View,
   Image,
-  RefreshControl,
-  Pressable,
+  TouchableOpacity,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
@@ -15,13 +14,12 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrderHistory = ({navigation}) => {
-  const [refreshing, setRefreshing] = useState();
   const [array, setArray] = useState({
     'Đã giao': [],
   });
 
   const renderItem = ({item}) => (
-    <Pressable
+    <TouchableOpacity
       onPress={() => navigation.navigate('BillScreen', {item: item})}
       style={styles.itemContainer}>
       <Image
@@ -31,7 +29,7 @@ const OrderHistory = ({navigation}) => {
       />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.productId.name}</Text>
-        <Text style={styles.detail} numberOfLines={5}>
+        <Text style={styles.detail} numberOfLines={2}>
           {item.productId.description}
         </Text>
         <View style={styles.infoContainer}>
@@ -39,11 +37,10 @@ const OrderHistory = ({navigation}) => {
           <Text style={styles.price}>{formatPrice(item.totalPrice)}</Text>
         </View>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 
   const getApi = async () => {
-    setRefreshing(true);
     try {
       const res1 = await axios.get(API_User_Info, {
         params: {accountID: await AsyncStorage.getItem('_idUser')},
@@ -57,7 +54,6 @@ const OrderHistory = ({navigation}) => {
       });
 
       setArray(res2.data.message);
-      setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);
     }
@@ -80,9 +76,6 @@ const OrderHistory = ({navigation}) => {
       </View>
       {array['Đã giao'].length ? (
         <FlatList
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={getApi} />
-          }
           showsVerticalScrollIndicator={false}
           data={array['Đã giao']}
           keyExtractor={item => item._id}
@@ -90,7 +83,7 @@ const OrderHistory = ({navigation}) => {
           contentContainerStyle={styles.flatListContent}
         />
       ) : (
-        <Text style={{textAlign: 'center', top: '30%'}}>
+        <Text style={styles.noOrderText}>
           Bạn chưa có đơn hàng nào hoàn thành
         </Text>
       )}
@@ -105,9 +98,8 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    height: '5%',
+    height: '7%',
     marginHorizontal: '5%',
-    marginVertical: '1%',
     alignItems: 'center',
   },
   txtHeader: {
@@ -120,45 +112,53 @@ const styles = StyleSheet.create({
     marginHorizontal: '3%',
   },
   itemContainer: {
-    marginTop: '2%',
+    marginTop: '1%',
     backgroundColor: '#fff',
-    borderRadius: 5,
+    borderRadius: 10,
     elevation: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: '2%',
+    padding: '3%',
   },
   image: {
-    width: 110,
-    height: 100,
+    width: 100,
+    height: 80,
     resizeMode: 'contain',
     borderRadius: 8,
   },
   textContainer: {
-    marginLeft: '2%',
+    marginLeft: '3%',
     flex: 1,
   },
   name: {
     color: 'black',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
   },
   detail: {
-    fontSize: 13,
+    fontSize: 14,
     color: 'black',
+    marginTop: 5,
   },
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   quantity: {
-    fontSize: 13,
+    fontSize: 14,
     color: 'black',
   },
   price: {
     fontSize: 18,
     color: '#FC6D26',
     fontWeight: '600',
+  },
+  noOrderText: {
+    textAlign: 'center',
+    marginTop: '50%',
+    color: 'black',
+    fontSize: 18,
   },
 });
 

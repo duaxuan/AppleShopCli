@@ -251,13 +251,18 @@ const OrderPayScreen = ({navigation, route}) => {
       </Pressable>
 
       <Modal visible={!!paypalUrl}>
-        <TouchableOpacity onPress={clearPaypalState} style={{margin: '5%'}}>
-          <Text>Hủy</Text>
+        <TouchableOpacity
+          onPress={clearPaypalState}
+          style={{marginHorizontal: '5%', marginVertical: '3%'}}>
+          <Text style={{color: 'black', fontWeight: '500'}}>Hủy</Text>
         </TouchableOpacity>
         <View style={{flex: 1}}>
           <WebView
             source={{uri: paypalUrl}}
             onNavigationStateChange={onUrlChange}
+            incognito={true}
+            thirdPartyCookiesEnabled={false}
+            domStorageEnabled={false}
           />
         </View>
       </Modal>
@@ -277,7 +282,11 @@ const renderInfo = (label, value) => (
 const renderPaymentInfo = (label, value, bold = false) => (
   <View style={styles.itemPay}>
     <Text style={{color: '#999999'}}>{label}:</Text>
-    <Text style={{fontWeight: 'bold', color: bold ? 'orange' : 'black'}}>
+    <Text
+      style={{
+        fontWeight: 'bold',
+        color: bold ? 'orange' : 'black',
+      }}>
       {bold == null ? `X${value}` : formatPrice(value)}
     </Text>
   </View>

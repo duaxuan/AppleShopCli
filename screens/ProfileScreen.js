@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, Image, Pressable, StyleSheet} from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -6,11 +6,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import {useFocusEffect} from '@react-navigation/native';
 
 // Chat bot
 import {
   initialize,
   showMessaging,
+  logoutUser,
 } from '@robbywh/react-native-zendesk-messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -36,9 +38,11 @@ const ProfileScreen = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    getApi();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getApi();
+    }, []),
+  );
 
   return (
     <View style={styles.container}>
@@ -124,6 +128,9 @@ const ProfileScreen = ({navigation}) => {
         <Pressable
           style={styles.logoutButton}
           onPress={() => {
+            // Xoa chat bot
+            logoutUser();
+            // Xoa id
             AsyncStorage.clear();
             navigation.replace('LoginScreen');
           }}>

@@ -19,14 +19,7 @@ import {API_User} from '../API/getAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-// Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
-const LINE_HEIGHT = 0.5;
-const LINE_WIDTH = '40%';
-const LINE_MARGIN_VERTICAL = 10;
-const LINE_MARGIN_HORIZONTAL = 6;
-
-const Line = () => <View style={styles.line} />;
 
 const LoginScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -91,7 +84,7 @@ const LoginScreen = ({navigation}) => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text style={{color: 'black'}}>Email</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             onChangeText={text => {
               if (checkValidateEmail(text)) {
@@ -102,21 +95,20 @@ const LoginScreen = ({navigation}) => {
                 setEmail(text);
               }
             }}
-            style={styles.edt}
+            style={styles.input}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
-        {errorEmail && <Text style={{color: 'red'}}>{errorEmail}</Text>}
+        {errorEmail && <Text style={styles.errorText}>{errorEmail}</Text>}
         <View style={{marginTop: 16}}>
-          <Text style={{color: 'black'}}>Password</Text>
+          <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
-              placeholder="Please Enter Your Password"
+              placeholder="Enter your password"
               secureTextEntry={!showPassword}
-              keyboardType="default"
               onChangeText={text => {
                 if (checkValidatePassword(text)) {
                   setErrorPassword('');
@@ -138,39 +130,32 @@ const LoginScreen = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
-          {errorPassword && <Text style={{color: 'red'}}>{errorPassword}</Text>}
+          {errorPassword && (
+            <Text style={styles.errorText}>{errorPassword}</Text>
+          )}
         </View>
-        {error && <Text style={{color: 'red'}}>{error}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
         <Pressable
-          style={styles.btnLog}
+          style={styles.loginButton}
           onPress={() => {
             checkValidateLogin();
-          }}>
+          }}
+          disabled={isCheck}>
           {isCheck ? (
             <ActivityIndicator size={'small'} color={'white'} />
           ) : (
-            <Text style={styles.titleLog}>Login</Text>
+            <Text style={styles.loginButtonText}>Login</Text>
           )}
         </Pressable>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 32,
-          }}>
-          <Line />
-          <Text style={{color: 'black'}}> Or With </Text>
-          <Line />
+        <View style={styles.dividerContainer}>
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>Or With</Text>
+          <View style={styles.divider} />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: '50%',
-          }}>
-          <Text style={{color: '#999EA1'}}>Don’t have an account ? </Text>
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Don’t have an account?</Text>
           <Text
-            style={{color: '#242424'}}
+            style={styles.signupLink}
             onPress={navigateToSignup}
             disabled={isCheck}>
             Sign Up
@@ -186,12 +171,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: 'black',
     marginTop: '20%',
     marginLeft: '6%',
   },
   titleBig: {
-    color: 'black',
     fontSize: 25,
     fontWeight: '600',
   },
@@ -204,7 +187,10 @@ const styles = StyleSheet.create({
     marginHorizontal: '6%',
     marginTop: '16%',
   },
-  edt: {
+  label: {
+    color: 'black',
+  },
+  input: {
     borderWidth: 1,
     borderRadius: 10,
     height: 45,
@@ -228,27 +214,50 @@ const styles = StyleSheet.create({
   togglePasswordButton: {
     paddingHorizontal: 10,
   },
-  btnLog: {
-    marginTop: 50,
+  errorText: {
+    color: 'red',
+    marginTop: 5,
+  },
+  loginButton: {
+    marginTop: 20,
     backgroundColor: '#242424',
     height: 45,
     borderRadius: 10,
     justifyContent: 'center',
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
   },
-  titleLog: {
+  loginButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
   },
-  line: {
-    height: LINE_HEIGHT,
-    backgroundColor: BLACK_COLOR,
-    width: LINE_WIDTH,
-    alignSelf: 'center',
-    marginVertical: LINE_MARGIN_VERTICAL,
-    marginHorizontal: LINE_MARGIN_HORIZONTAL,
+  dividerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 32,
+    alignItems: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'black',
+    width: '40%',
+    marginVertical: 10,
+    marginHorizontal: 6,
+  },
+  dividerText: {
+    color: 'black',
+    fontSize: 16,
+  },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: '50%',
+  },
+  signupText: {
+    color: '#999EA1',
+  },
+  signupLink: {
+    color: '#242424',
+    marginLeft: 5,
   },
 });
 

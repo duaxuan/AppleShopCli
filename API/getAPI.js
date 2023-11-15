@@ -1,4 +1,4 @@
-export const API_URL = 'http://192.168.0.100:3000';
+export const API_URL = 'http://192.168.0.102:3000';
 export const API_User = API_URL + '/user/';
 export const API_User_Pay = API_URL + '/user/pay/';
 export const API_User_Info = API_URL + '/information/';

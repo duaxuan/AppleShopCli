@@ -58,7 +58,7 @@ const EditAccountScreen = ({navigation}) => {
     formData.append('fullName', fullName);
     formData.append('address', address);
     formData.append('birthday', birthday);
-    formData.append('phoneNumber', phoneNumber);
+    formData.append('phone', phoneNumber);
 
     let localUri = avatar.uri;
     let filename = localUri.split('/').pop();
@@ -74,7 +74,7 @@ const EditAccountScreen = ({navigation}) => {
       });
 
       ToastAndroid.show('Lưu thông tin thành công', ToastAndroid.SHORT);
-      navigation.replace('Main');
+      navigation.goBack();
       setIsCheck(false);
     } catch (error) {
       setIsCheck(false);

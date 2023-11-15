@@ -19,16 +19,9 @@ import {
 } from '../compoment/checkValidate';
 import axios from 'axios';
 
-// Biến cho các giá trị cố định
 const BLACK_COLOR = 'black';
-const LINE_HEIGHT = 0.5;
-const LINE_WIDTH = '40%';
-const LINE_MARGIN_VERTICAL = 10;
-const LINE_MARGIN_HORIZONTAL = 6;
 
-const Line = () => <View style={styles.line}></View>;
-
-const SigupScreen = ({navigation}) => {
+const SignupScreen = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -38,9 +31,9 @@ const SigupScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const [error, setError] = useState('');
-  const [isCheck, setIscheck] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
 
-  const validateLogin = () => {
+  const validateSignup = () => {
     if (email.length <= 0) {
       setErrorEmail('Email không được bỏ trống!');
       return false;
@@ -53,39 +46,42 @@ const SigupScreen = ({navigation}) => {
     } else if (errorEmail !== '' || errorPassword !== '' || errorPhone !== '') {
       return false;
     } else {
-      onSignup();
+      return true;
     }
   };
 
   const onSignup = async () => {
-    setIscheck(true);
-    try {
-      const res = await axios.post(`${API_User}signup`, {
-        email,
-        passWord: password,
-        role: 'User',
-      });
-      if (res.data.error) {
-        setError(res.data.error);
-      } else {
-        await axios.post(API_User_Info, {phone, accountID: res.data._id});
-        navigation.navigate('LoginScreen');
+    if (validateSignup()) {
+      setIsCheck(true);
+      try {
+        const res = await axios.post(`${API_User}signup`, {
+          email,
+          passWord: password,
+          role: 'User',
+        });
+        if (res.data.error) {
+          setError(res.data.error);
+        } else {
+          await axios.post(API_User_Info, {phone, accountID: res.data._id});
+          navigation.navigate('LoginScreen');
+        }
+        setIsCheck(false);
+      } catch (error) {
+        setIsCheck(false);
+        console.log('Call api: ', error.message);
       }
-      setIscheck(false);
-    } catch (error) {
-      setIscheck(false);
-      console.log('Call api: ', error.message);
     }
   };
 
   const navigateToLogin = () => {
-    navigation.navigate('LoginScreen'); // Chuyển đến màn hình SignupScreen
+    navigation.navigate('LoginScreen');
   };
+
   const togglePassword = useCallback(() => {
     setShowPassword(prevShowPassword => !prevShowPassword);
   }, []);
 
-  const countryPrefix = '+84'; // Mã quốc gia
+  const countryPrefix = '+84';
 
   return (
     <View style={styles.container}>
@@ -97,7 +93,7 @@ const SigupScreen = ({navigation}) => {
         style={styles.containeredt}
         behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <View>
-          <Text style={{color: 'black'}}>Email</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             onChangeText={text => {
               if (checkValidateEmail(text)) {
@@ -108,15 +104,15 @@ const SigupScreen = ({navigation}) => {
                 setEmail(text);
               }
             }}
-            style={styles.edt}
+            style={styles.input}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
-        {errorEmail && <Text style={{color: 'red'}}>{errorEmail}</Text>}
+        {errorEmail && <Text style={styles.errorText}>{errorEmail}</Text>}
         <View style={{marginTop: 16}}>
-          <Text style={{color: 'black'}}>Phone Number</Text>
+          <Text style={styles.label}>Phone Number</Text>
           <View style={styles.phoneInputContainer}>
             <Text style={styles.countryCode}>{countryPrefix}</Text>
             <TextInput
@@ -134,10 +130,10 @@ const SigupScreen = ({navigation}) => {
               keyboardType="numeric"
             />
           </View>
-          {errorPhone && <Text style={{color: 'red'}}>{errorPhone}</Text>}
+          {errorPhone && <Text style={styles.errorText}>{errorPhone}</Text>}
         </View>
         <View style={{marginTop: 16}}>
-          <Text style={{color: 'black'}}>Password</Text>
+          <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               onChangeText={text => {
@@ -164,40 +160,32 @@ const SigupScreen = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
-          {errorPassword && <Text style={{color: 'red'}}>{errorPassword}</Text>}
+          {errorPassword && (
+            <Text style={styles.errorText}>{errorPassword}</Text>
+          )}
         </View>
-        {error && <Text style={{color: 'red'}}>{error}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
         <Pressable
-          onPress={() => {
-            if (validateLogin()) {
-              onSignup();
-            }
-          }}
-          style={styles.btnLog}>
+          onPress={onSignup}
+          style={styles.signupButton}
+          disabled={isCheck}>
           {isCheck ? (
             <ActivityIndicator size={'small'} color={'white'} />
           ) : (
-            <Text style={styles.titleLog}>Sign Up</Text>
+            <Text style={styles.signupButtonText}>Sign Up</Text>
           )}
         </Pressable>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 32,
-          }}>
-          <Line />
-          <Text style={{color: 'black'}}> Or With </Text>
-          <Line />
+        <View style={styles.dividerContainer}>
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>Or With</Text>
+          <View style={styles.divider} />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: '10%',
-          }}>
-          <Text style={{color: '#999EA1'}}>Already have an account ? </Text>
-          <Text style={{color: '#242424'}} onPress={navigateToLogin}>
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginText}>Already have an account?</Text>
+          <Text
+            style={styles.loginLink}
+            onPress={navigateToLogin}
+            disabled={isCheck}>
             Login
           </Text>
         </View>
@@ -215,7 +203,6 @@ const styles = StyleSheet.create({
     marginLeft: '6%',
   },
   titleBig: {
-    color: 'black',
     fontSize: 25,
     fontWeight: '600',
   },
@@ -228,7 +215,10 @@ const styles = StyleSheet.create({
     marginHorizontal: '6%',
     marginTop: '16%',
   },
-  edt: {
+  label: {
+    color: 'black',
+  },
+  input: {
     borderWidth: 1,
     borderRadius: 10,
     height: 45,
@@ -270,7 +260,7 @@ const styles = StyleSheet.create({
   togglePasswordButton: {
     paddingHorizontal: 10,
   },
-  btnLog: {
+  signupButton: {
     marginTop: 50,
     backgroundColor: '#242424',
     height: 45,
@@ -278,18 +268,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  titleLog: {
+  signupButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
   },
-  line: {
-    height: LINE_HEIGHT,
-    backgroundColor: BLACK_COLOR,
-    width: LINE_WIDTH,
+  errorText: {
+    color: 'red',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 32,
+  },
+  divider: {
+    height: 0.5,
+    backgroundColor: 'black',
+    width: '40%',
     alignSelf: 'center',
-    marginVertical: LINE_MARGIN_VERTICAL,
-    marginHorizontal: LINE_MARGIN_HORIZONTAL,
+    marginVertical: 10,
+    marginHorizontal: 6,
+  },
+  dividerText: {
+    color: 'black',
+    fontSize: 16,
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: '10%',
+  },
+  loginText: {
+    color: '#999EA1',
+  },
+  loginLink: {
+    color: '#242424',
+    marginLeft: 5,
   },
 });
 
-export default SigupScreen;
+export default SignupScreen;

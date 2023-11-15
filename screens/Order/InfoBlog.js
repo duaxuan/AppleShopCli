@@ -13,6 +13,18 @@ import {API_URL} from '../../API/getAPI';
 const InfoBlog = ({navigation, route}) => {
   const {item} = route.params;
 
+  const formatDate = dateString => {
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    };
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', options);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -28,6 +40,7 @@ const InfoBlog = ({navigation, route}) => {
           source={{uri: `${API_URL}${item.image}`}}
         />
         <View style={styles.content}>
+          <Text style={styles.createdAtText}>{formatDate(item.createdAt)}</Text>
           <Text style={styles.itemName}>{item.title}</Text>
           <Text style={styles.sectionHeader}>Mô tả</Text>
           <View style={styles.itemDesc}>
@@ -50,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    marginLeft: 'auto', // Aligns to the right
+    marginLeft: 'auto',
     fontSize: 20,
     color: 'black',
     fontWeight: '600',
@@ -83,6 +96,10 @@ const styles = StyleSheet.create({
   },
   descText: {
     color: 'black',
+  },
+  createdAtText: {
+    color: 'black',
+    marginTop: 10,
   },
 });
 

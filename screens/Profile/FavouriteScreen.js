@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -8,7 +9,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -33,7 +33,9 @@ const FavouriteScreen = ({navigation}) => {
     try {
       await axios.put(
         `${API_Favorite}${await AsyncStorage.getItem('_idUser')}`,
-        {productId: item._id},
+        {
+          productId: item._id,
+        },
       );
       getAPI();
     } catch (error) {
@@ -89,42 +91,46 @@ const FavouriteScreen = ({navigation}) => {
       </View>
       {/* List item */}
       <Text style={styles.title}>Sản phẩm yêu thích</Text>
-      <FlatList
-        data={search ? filteredArray : array}
-        keyExtractor={item => item._id}
-        renderItem={({item}) => (
-          <Pressable
-            onPress={() =>
-              navigation.navigate('ProductdetailsScreen', {
-                product: item,
-              })
-            }
-            style={styles.listItem}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Image
-                style={styles.avatarItem}
-                source={{uri: `${API_URL}${item.image}`}}
-              />
-              <View style={{width: '55%', left: '10%'}}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text numberOfLines={1} style={styles.txtItemName}>
-                    {item.name}
-                  </Text>
-                  <View style={styles.itemYear}>
-                    <Text style={styles.txtYear}>Mua ngay</Text>
+      {array.length ? (
+        <FlatList
+          data={search ? filteredArray : array}
+          keyExtractor={item => item._id}
+          renderItem={({item}) => (
+            <Pressable
+              onPress={() =>
+                navigation.navigate('ProductdetailsScreen', {product: item})
+              }
+              style={styles.listItem}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Image
+                  style={styles.avatarItem}
+                  source={{uri: `${API_URL}${item.image}`}}
+                />
+                <View style={{width: '55%', left: '10%'}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Text numberOfLines={1} style={styles.txtItemName}>
+                      {item.name}
+                    </Text>
+                    <View style={styles.itemYear}>
+                      <Text style={styles.txtYear}>Mua ngay</Text>
+                    </View>
                   </View>
+                  <Text style={styles.txtItemPrice}>
+                    đ {item.price.toLocaleString().replace(/,/g, '.')}
+                  </Text>
                 </View>
-                <Text style={styles.txtItemPrice}>
-                  đ {item.price.toLocaleString().replace(/,/g, '.')}
-                </Text>
               </View>
-            </View>
-            <TouchableOpacity onPress={() => putAPI_Like(item)}>
-              <AntDesign name={'heart'} size={24} color="black" />
-            </TouchableOpacity>
-          </Pressable>
-        )}
-      />
+              <TouchableOpacity onPress={() => putAPI_Like(item)}>
+                <AntDesign name={'heart'} size={24} color="red" />
+              </TouchableOpacity>
+            </Pressable>
+          )}
+        />
+      ) : (
+        <Text style={styles.noFavoriteText}>
+          Chưa có sản phẩm nào được yêu thích
+        </Text>
+      )}
     </View>
   );
 };
@@ -204,6 +210,12 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 10,
     fontWeight: '500',
+  },
+  noFavoriteText: {
+    textAlign: 'center',
+    marginTop: '20%',
+    fontSize: 16,
+    color: 'black',
   },
 });
 
