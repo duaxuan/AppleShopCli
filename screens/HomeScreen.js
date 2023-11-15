@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,19 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
-  RefreshControl,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Swiper from 'react-native-swiper';
-import {API_Product, API_Type_Product, API_User_Info} from '../API/getAPI';
+import {
+  API_Product,
+  API_Type_Product,
+  API_URL,
+  API_User_Info,
+} from '../API/getAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 export const formatPrice = price => {
   const formatter = new Intl.NumberFormat('vi-VN', {
@@ -29,7 +34,6 @@ const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = useState('Macbook');
   const [DATADANHMUC, setDATADANHMUC] = useState([]);
   const [DATASANPHAM, setDATASANPHAM] = useState([]);
-  const [refreshing, setRefreshing] = useState();
 
   const handleProductPress = product => {
     navigation.navigate('ProductdetailsScreen', {product});
@@ -42,7 +46,10 @@ const HomeScreen = ({navigation}) => {
         selectedCategory === category.name ? {borderBottomWidth: 1} : null,
       ]}
       onPress={() => setSelectedCategory(category.name)}>
-      <Image style={styles.categoryImage} source={{uri: category.image}} />
+      <Image
+        style={styles.categoryImage}
+        source={{uri: `${API_URL}${category.image}`}}
+      />
       <Text style={styles.categoryName}>{category.name}</Text>
     </TouchableOpacity>
   );
@@ -59,7 +66,10 @@ const HomeScreen = ({navigation}) => {
     <TouchableOpacity
       style={styles.productItem}
       onPress={() => handleProductPress(item)}>
-      <Image style={styles.productImage} source={{uri: item.image}} />
+      <Image
+        style={styles.productImage}
+        source={{uri: `${API_URL}${item.image}`}}
+      />
       <Text style={styles.productName} numberOfLines={1}>
         {item.name}
       </Text>
@@ -71,38 +81,40 @@ const HomeScreen = ({navigation}) => {
 
   const ProductList = () => (
     <FlatList
+      scrollEnabled={false}
       data={DATASANPHAM[selectedCategory]}
       keyExtractor={item => item._id}
       numColumns={2}
+      contentContainerStyle={styles.productList}
       renderItem={({item}) => <ProductItem item={item} />}
     />
   );
 
   const getApi = async () => {
-    setRefreshing(true);
     try {
-      const idUser = await AsyncStorage.getItem('_idUser');
-      const role = await AsyncStorage.getItem('role');
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
 
-      const res1 = await axios.get(API_User_Info, {params: {idUser, role}});
-      if (!res1.data.message) {
+      if (!res1.data.message.fullName) {
         console.warn('Hãy cập nhật thông tin để sử dụng dịch vụ của chúng tôi');
         navigation.replace('EditAccountScreen');
       }
 
-      const res2 = await axios.get(API_Product, {params: {role}});
+      const res2 = await axios.get(API_Product, {params: {role: 'User'}});
       setDATASANPHAM(res2.data.message);
       const res3 = await axios.get(API_Type_Product);
       setDATADANHMUC(res3.data.message);
-      setRefreshing(false);
     } catch (error) {
       console.error('Call api: ' + error.message);
     }
   };
 
-  useEffect(() => {
-    getApi();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getApi();
+    }, []),
+  );
 
   return (
     <View style={{flex: 1}}>
@@ -126,27 +138,21 @@ const HomeScreen = ({navigation}) => {
           />
         </View>
       </View>
-      <View>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={getApi} />
-          }
-          showsVerticalScrollIndicator={false}>
-          <Swiper style={styles.swiperContainer} autoplay>
-            {DATADANHMUC.map(category => (
-              <View key={category._id} style={styles.slide}>
-                <Image
-                  style={styles.slideImage}
-                  source={{uri: category.image}}
-                />
-                <Text style={styles.slideText}>{category.name}</Text>
-              </View>
-            ))}
-          </Swiper>
-          <CategoryList />
-        </ScrollView>
-      </View>
-      {selectedCategory && <ProductList />}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Swiper style={styles.swiperContainer} autoplay>
+          {DATADANHMUC.map(category => (
+            <View key={category._id} style={styles.slide}>
+              <Image
+                style={styles.slideImage}
+                source={{uri: `${API_URL}${category.image}`}}
+              />
+              <Text style={styles.slideText}>{category.name}</Text>
+            </View>
+          ))}
+        </Swiper>
+        <CategoryList />
+        {selectedCategory && <ProductList />}
+      </ScrollView>
     </View>
   );
 };
@@ -242,6 +248,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FC6D26',
     justifyContent: 'center',
+  },
+  productList: {
+    justifyContent: 'space-between',
+    paddingHorizontal: '2%',
+    marginTop: 10,
   },
 });
 

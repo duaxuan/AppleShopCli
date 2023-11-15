@@ -1,49 +1,42 @@
-import React, {useEffect, useState} from 'react';
-import {
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {FlatList, Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import axios from 'axios';
-import {API_Blog} from '../API/getAPI';
+import {API_Blog, API_URL} from '../API/getAPI';
+import {useFocusEffect} from '@react-navigation/native';
 
 const NotificationScreen = ({navigation}) => {
-  const [array, setArray] = useState(null);
-  const [refreshing, setRefreshing] = useState();
+  const [notificationList, setNotificationList] = useState([]);
 
-  const getApi = async () => {
-    setRefreshing(true);
+  const getNotifications = async () => {
     try {
-      const res = await axios.get(API_Blog);
-      setArray(res.data.message);
-      setRefreshing(false);
+      const response = await axios.get(API_Blog);
+      setNotificationList(response.data.message);
     } catch (error) {
-      console.error('Call api: ' + error.message);
+      console.error('Error fetching notifications:', error.message);
     }
   };
 
-  useEffect(() => {
-    getApi();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getNotifications();
+    }, []),
+  );
 
   const renderNotificationItem = ({item}) => (
     <Pressable
-      style={styles.notiItem}
-      onPress={() => navigation.navigate('InfoBlog', {item: item})}>
-      <View style={styles.rowItem}>
-        <Image style={styles.imageItem} source={{uri: item.image}} />
-        <View style={styles.itemTextContainer}>
-          <Text style={styles.itemTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.itemInfo} numberOfLines={2}>
-            {item.desc}
-          </Text>
-        </View>
+      style={styles.notificationItem}
+      onPress={() => navigation.navigate('InfoBlog', {item})}>
+      <Image
+        style={styles.notificationImage}
+        source={{uri: `${API_URL}${item.image}`}}
+      />
+      <View style={styles.notificationDetails}>
+        <Text style={styles.notificationTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.notificationDesc} numberOfLines={2}>
+          {item.desc}
+        </Text>
       </View>
     </Pressable>
   );
@@ -51,15 +44,13 @@ const NotificationScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.titleHeader}>Thông tin</Text>
+        <Text style={styles.headerTitle}>Thông tin</Text>
       </View>
       <FlatList
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={getApi} />
-        }
-        data={array}
-        style={styles.flatList}
+        data={notificationList}
         renderItem={renderNotificationItem}
+        keyExtractor={item => item._id}
+        style={styles.notificationList}
       />
     </View>
   );
@@ -68,51 +59,55 @@ const NotificationScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     height: 60,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
-  titleHeader: {
-    color: 'black',
+  headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333333',
   },
-  notiItem: {
-    height: 105,
-    marginTop: '0.5%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    backgroundColor: 'white',
+  notificationList: {
+    flex: 1,
+    marginTop: 10,
+    marginHorizontal: 16,
   },
-  rowItem: {
-    alignItems: 'center',
+  notificationItem: {
     flexDirection: 'row',
-    marginHorizontal: '1%',
-  },
-  imageItem: {
-    width: 100,
-    height: 70,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
-    resizeMode: 'contain',
-    marginHorizontal: '2%',
+    elevation: 3,
+    marginBottom: 10,
+    padding: '2%',
+    overflow: 'hidden',
   },
-  itemTextContainer: {
-    width: '70%',
+  notificationImage: {
+    width: 80,
+    height: 80,
+    resizeMode: 'cover',
+    borderRadius: 10,
   },
-  itemTitle: {
-    color: 'black',
-    fontWeight: '500',
+  notificationDetails: {
+    flex: 1,
+    padding: 12,
   },
-  itemInfo: {
-    color: 'black',
-    fontSize: 12,
-    marginTop: '3%',
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 6,
   },
-  flatList: {
-    marginTop: '2%',
+  notificationDesc: {
+    fontSize: 14,
+    color: '#666666',
   },
 });
 

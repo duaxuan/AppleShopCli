@@ -11,13 +11,12 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {formatPrice} from '../HomeScreen';
 import axios from 'axios';
-import {API_User_Pay} from '../../API/getAPI';
+import {API_URL, API_User_Pay} from '../../API/getAPI';
 
 const InfoBlog = ({navigation, route}) => {
   const {item} = route.params;
 
   const handleDuyet = async () => {
-    // Xử lý logic duyệt từng item ở đây
     try {
       await axios.put(`${API_User_Pay}${item._id}`, {
         status: 'Đã giao',
@@ -30,6 +29,18 @@ const InfoBlog = ({navigation, route}) => {
     }
   };
 
+  const formatDate = dateString => {
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    };
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', options);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -40,44 +51,54 @@ const InfoBlog = ({navigation, route}) => {
           <Text style={styles.headerTitle}>Hóa đơn</Text>
         </View>
 
-        <Image style={styles.itemImage} source={{uri: item.productId.image}} />
+        <Image
+          style={styles.itemImage}
+          source={{uri: `${API_URL}${item.productId.image}`}}
+        />
         <View style={styles.content}>
           <Text style={styles.itemName}>{item.productId.name}</Text>
-          <Text style={styles.sectionHeader}>Mô tả</Text>
+          <Text style={styles.sectionHeader}>Mô tả đơn hàng</Text>
           <View style={styles.itemDesc}>
             <Text style={styles.descText}>
-              Tổng tiền thanh toán:{formatPrice(item.totalPrice)}
+              <Text style={styles.boldText}>Tổng tiền thanh toán:</Text>{' '}
+              {formatPrice(item.totalPrice)}
             </Text>
-            <Text style={styles.descText}>Số lượng mua:{item.quantity}</Text>
             <Text style={styles.descText}>
-              Tình trạng đơn hàng: {item.status}
+              <Text style={styles.boldText}>Số lượng mua:</Text> {item.quantity}
             </Text>
-            <Text style={styles.descText}>Ngày mua: {item.createdAt}</Text>
+            <Text style={styles.descText}>
+              <Text style={styles.boldText}>Tình trạng đơn hàng:</Text>{' '}
+              {item.status}
+            </Text>
+            <Text style={styles.descText}>
+              <Text style={styles.boldText}>Ngày mua:</Text>{' '}
+              {formatDate(item.createdAt)}
+            </Text>
           </View>
         </View>
       </ScrollView>
       <View style={{position: 'absolute', bottom: '10%', left: '13%'}}>
-        {item.status == 'Đang xử lý' && (
-          <Pressable style={[styles.logoutButton, {backgroundColor: 'gray'}]}>
-            <Text style={styles.logoutText}>Chờ xác nhận</Text>
-          </Pressable>
+        {item.status === 'Đang xử lý' && (
+          <View style={styles.pendingButton}>
+            <Text style={styles.buttonText}>Chờ xác nhận</Text>
+          </View>
         )}
-        {item.status == 'Đang vận chuyển' && (
+        {item.status === 'Đang vận chuyển' && (
           <Pressable
-            style={[styles.logoutButton, {backgroundColor: '#536EFF'}]}
+            style={[styles.confirmButton, {backgroundColor: '#536EFF'}]}
             onPress={() => handleDuyet()}>
-            <Text style={styles.logoutText}>Nhận hàng</Text>
+            <Text style={styles.buttonText}>Nhận hàng</Text>
           </Pressable>
         )}
-        {item.status == 'Đã giao' && (
+        {item.status === 'Đã giao' && (
           <Pressable
-            style={styles.logoutButton}
+            style={styles.buyAgainButton}
             onPress={() =>
               navigation.navigate('ProductdetailsScreen', {
                 product: item.productId,
               })
             }>
-            <Text style={styles.logoutText}>Mua lại</Text>
+            <Text style={styles.buttonText}>Mua lại</Text>
           </Pressable>
         )}
       </View>
@@ -126,18 +147,36 @@ const styles = StyleSheet.create({
   },
   itemDesc: {
     marginTop: 10,
+    paddingHorizontal: 20,
   },
   descText: {
     color: 'black',
   },
-  logoutButton: {
+  boldText: {
+    fontWeight: 'bold',
+  },
+  pendingButton: {
+    width: 300,
+    height: 50,
+    borderRadius: 35,
+    justifyContent: 'center',
+    backgroundColor: 'gray',
+  },
+  confirmButton: {
+    width: 300,
+    height: 50,
+    borderRadius: 35,
+    justifyContent: 'center',
+    backgroundColor: '#536EFF',
+  },
+  buyAgainButton: {
     width: 300,
     height: 50,
     borderRadius: 35,
     justifyContent: 'center',
     backgroundColor: 'black',
   },
-  logoutText: {
+  buttonText: {
     color: 'white',
     fontSize: 17,
     alignSelf: 'center',

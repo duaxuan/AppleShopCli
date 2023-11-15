@@ -5,51 +5,55 @@ import {
   Text,
   View,
   Image,
-  RefreshControl,
-  Pressable,
+  TouchableOpacity,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {formatPrice} from '../HomeScreen';
-import {API_User_Pay} from '../../API/getAPI';
+import {API_URL, API_User_Info, API_User_Pay} from '../../API/getAPI';
 import axios from 'axios';
-
-const USER_ROLE = 'User';
-const USER_ID = '65460fd7b1a47545e1894cfb';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrderHistory = ({navigation}) => {
-  const [refreshing, setRefreshing] = useState();
   const [array, setArray] = useState({
     'Đã giao': [],
   });
 
   const renderItem = ({item}) => (
-    <Pressable
+    <TouchableOpacity
       onPress={() => navigation.navigate('BillScreen', {item: item})}
       style={styles.itemContainer}>
       <Image
         style={styles.image}
-        source={{uri: item.productId.image}}
+        source={{uri: `${API_URL}${item.productId.image}`}}
         resizeMode="contain"
       />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.productId.name}</Text>
-        <Text style={styles.detail}>{item.productId.description}</Text>
+        <Text style={styles.detail} numberOfLines={2}>
+          {item.productId.description}
+        </Text>
         <View style={styles.infoContainer}>
           <Text style={styles.quantity}>Đã mua: {item.quantity}</Text>
           <Text style={styles.price}>{formatPrice(item.totalPrice)}</Text>
         </View>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 
   const getApi = async () => {
-    setRefreshing(true);
     try {
-      const res = await axios.get(API_User_Pay, {
-        params: {role: USER_ROLE, userId: USER_ID},
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
       });
-      setArray(res.data.message);
-      setRefreshing(false);
+
+      const res2 = await axios.get(API_User_Pay, {
+        params: {
+          role: 'User',
+          userId: res1.data.message._id,
+        },
+      });
+
+      setArray(res2.data.message);
     } catch (error) {
       console.error('Call api: ' + error.message);
     }
@@ -70,16 +74,19 @@ const OrderHistory = ({navigation}) => {
         />
         <Text style={styles.txtHeader}>Lịch sử mua hàng</Text>
       </View>
-      <FlatList
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={getApi} />
-        }
-        showsVerticalScrollIndicator={false}
-        data={array['Đã giao']}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.flatListContent}
-      />
+      {array['Đã giao'].length ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={array['Đã giao']}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContent}
+        />
+      ) : (
+        <Text style={styles.noOrderText}>
+          Bạn chưa có đơn hàng nào hoàn thành
+        </Text>
+      )}
     </View>
   );
 };
@@ -91,9 +98,8 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    height: '5%',
+    height: '7%',
     marginHorizontal: '5%',
-    marginVertical: '1%',
     alignItems: 'center',
   },
   txtHeader: {
@@ -106,45 +112,53 @@ const styles = StyleSheet.create({
     marginHorizontal: '3%',
   },
   itemContainer: {
-    marginTop: '2%',
+    marginTop: '1%',
     backgroundColor: '#fff',
-    borderRadius: 5,
+    borderRadius: 10,
     elevation: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: '2%',
+    padding: '3%',
   },
   image: {
-    width: 110,
-    height: 100,
+    width: 100,
+    height: 80,
     resizeMode: 'contain',
     borderRadius: 8,
   },
   textContainer: {
-    marginLeft: '2%',
+    marginLeft: '3%',
     flex: 1,
   },
   name: {
     color: 'black',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
   },
   detail: {
-    fontSize: 13,
+    fontSize: 14,
     color: 'black',
+    marginTop: 5,
   },
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   quantity: {
-    fontSize: 13,
+    fontSize: 14,
     color: 'black',
   },
   price: {
     fontSize: 18,
     color: '#FC6D26',
     fontWeight: '600',
+  },
+  noOrderText: {
+    textAlign: 'center',
+    marginTop: '50%',
+    color: 'black',
+    fontSize: 18,
   },
 });
 

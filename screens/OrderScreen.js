@@ -1,20 +1,20 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
   Pressable,
-  RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   View,
   Dimensions,
+  ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import axios from 'axios';
-import {API_User_Pay} from '../API/getAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {API_URL, API_User_Info, API_User_Pay} from '../API/getAPI';
+import {useFocusEffect} from '@react-navigation/native';
 
-const USER_ROLE = 'User';
-const USER_ID = '65460fd7b1a47545e1894cfb';
 const {width} = Dimensions.get('window');
 
 const listTab = [
@@ -30,97 +30,96 @@ const imgOrder = [
 ];
 
 const OrderScreen1 = ({navigation}) => {
-  const [status, setStatus] = useState('Đang xử lý');
+  const [currentTab, setCurrentTab] = useState('Đang xử lý');
   const [imgBottom, setImgBottom] = useState(imgOrder[0]);
-  const [refreshing, setRefreshing] = useState(false);
   const [array, setArray] = useState([]);
 
   const tabItem = tab => {
-    setStatus(tab);
+    setCurrentTab(tab);
     setImgBottom(imgOrder[listTab.findIndex(item => item.status === tab)]);
   };
 
   const fetchData = async () => {
-    setRefreshing(true);
     try {
-      const res = await axios.get(API_User_Pay, {
-        params: {role: USER_ROLE, userId: USER_ID},
+      const res1 = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
       });
-      setArray(res.data.message);
-      setRefreshing(false);
+
+      const res2 = await axios.get(API_User_Pay, {
+        params: {
+          role: 'User',
+          userId: res1.data.message._id,
+        },
+      });
+      setArray(res2.data.message);
     } catch (error) {
       console.error('Call api: ' + error.message);
     }
   };
 
   const handleDuyet = async item => {
-    // Xử lý logic duyệt từng item ở đây
     try {
       await axios.put(`${API_User_Pay}${item._id}`, {
-        status: status === 'Đang xử lý' ? 'Đã hủy' : 'Đã giao',
+        status: currentTab === 'Đang xử lý' ? 'Đã hủy' : 'Đã giao',
         updateAll: false,
       });
       fetchData();
-      {
-        status === 'Đang vận chuyển' &&
-          navigation.replace('Main', {screen: 'Order'});
-      }
+      ToastAndroid.show('Xác nhận thành công', ToastAndroid.show);
     } catch (error) {
       console.error('Put API: ' + error.message);
     }
   };
 
-  const renderItem = array => (
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, []),
+  );
+
+  const renderItem = () => (
     <FlatList
       keyExtractor={item => item._id}
-      scrollEnabled={false}
-      data={array[status]}
+      data={array[currentTab]}
       renderItem={({item}) => (
         <View style={styles.viewItem}>
-          <Image style={styles.imgItem} source={{uri: item.productId.image}} />
-          <View style={{left: '5%', flex: 1}}>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={styles.nameProductItem} numberOfLines={1}>
+          <Image
+            style={styles.imgItem}
+            source={{uri: `${API_URL}${item.productId.image}`}}
+          />
+          <View style={{marginLeft: 10, flex: 1}}>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName} numberOfLines={1}>
                 {item.productId.name}
               </Text>
-              <View style={styles.quantityItem}>
-                <Text style={styles.txtItem}>{item.quantity}</Text>
+              <View style={styles.quantityContainer}>
+                <Text style={styles.quantityText}>{item.quantity}</Text>
               </View>
             </View>
 
-            <Text style={[styles.txtItem, {fontSize: 13}]}>
+            <Text style={[styles.productText, {fontSize: 13}]}>
               Giá: {item.productId.price}
             </Text>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+
+            <View style={styles.actionContainer}>
               <Text
                 onPress={() => navigation.navigate('BillScreen', {item: item})}
-                style={[styles.txtItem, {textDecorationLine: 'underline'}]}>
+                style={[styles.productText, styles.underline]}>
                 Xem thêm
               </Text>
-              {status === 'Đang xử lý' && (
+
+              {currentTab === 'Đang xử lý' && (
                 <Pressable
-                  style={styles.statusItem}
+                  style={[styles.statusButton, {backgroundColor: 'red'}]}
                   onPress={() => handleDuyet(item)}>
-                  <Text
-                    style={[styles.txtItem, {color: 'white', fontSize: 10}]}
-                    numberOfLines={1}>
-                    Hủy
-                  </Text>
+                  <Text style={styles.buttonText}>Hủy</Text>
                 </Pressable>
               )}
-              {status === 'Đang vận chuyển' && (
+
+              {currentTab === 'Đang vận chuyển' && (
                 <Pressable
-                  style={styles.statusItem}
-                  onPress={() => {
-                    handleDuyet(item);
-                  }}>
-                  <Text
-                    style={[styles.txtItem, {color: 'white', fontSize: 10}]}
-                    numberOfLines={1}>
-                    Nhận hàng
-                  </Text>
+                  style={[styles.statusButton, {backgroundColor: 'green'}]}
+                  onPress={() => handleDuyet(item)}>
+                  <Text style={styles.buttonText}>Nhận hàng</Text>
                 </Pressable>
               )}
             </View>
@@ -131,39 +130,36 @@ const OrderScreen1 = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container} onLayout={() => fetchData(status)}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.titleHeader}>Thông tin đơn hàng</Text>
       </View>
 
-      <View style={{alignItems: 'center'}}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => fetchData(status)}
-            />
-          }
-          horizontal
-          showsHorizontalScrollIndicator={false}>
+      <View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {listTab.map((data, index) => (
             <Pressable
               key={index}
               style={[
                 styles.tabItem,
-                data.status === status ? {backgroundColor: 'white'} : null,
+                data.status === currentTab ? {backgroundColor: 'white'} : null,
               ]}
               onPress={() => tabItem(data.status)}>
-              <Text style={data.status === status ? styles.txtTab : null}>
+              <Text
+                style={
+                  data.status === currentTab
+                    ? styles.activeTabText
+                    : styles.inactiveTabText
+                }>
                 {data.status}
               </Text>
             </Pressable>
           ))}
         </ScrollView>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {renderItem(array)}
-      </ScrollView>
+
+      {renderItem()}
+
       <Image style={styles.imageBottom} source={{uri: imgBottom}} />
     </View>
   );
@@ -188,59 +184,84 @@ const styles = StyleSheet.create({
   tabItem: {
     width: width / 3.25,
     height: 40,
-    margin: '3%',
+    margin: 8,
     alignItems: 'center',
-    marginHorizontal: 5,
     justifyContent: 'center',
     borderRadius: 10,
   },
-  txtTab: {
+  activeTabText: {
     color: 'black',
     fontWeight: 'bold',
     fontSize: 16,
   },
+  inactiveTabText: {
+    color: 'gray',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   viewItem: {
-    marginTop: '2%',
+    marginTop: 10,
     borderRadius: 20,
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: '3%',
-    paddingVertical: '2%',
-    marginHorizontal: '4%',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginHorizontal: 20,
     flexDirection: 'row',
   },
   imgItem: {
     width: 90,
     height: 90,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 10,
   },
-  nameProductItem: {
-    fontSize: 19,
+  productInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  productName: {
+    fontSize: 18,
     color: 'black',
     fontWeight: 'bold',
+    maxWidth: width * 0.5,
   },
-  txtItem: {
-    color: 'black',
-    fontSize: 12,
-    margin: '2%',
-    fontWeight: '700',
-  },
-  quantityItem: {
-    width: 25,
-    height: 25,
-    borderRadius: 20,
+  quantityContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#D9D9D9',
   },
-  statusItem: {
-    width: 70,
-    height: 25,
-    borderRadius: 10,
-    backgroundColor: 'black',
+  quantityText: {
+    color: 'black',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  productText: {
+    color: 'black',
+    fontSize: 12,
+    marginVertical: 5,
+    fontWeight: '700',
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  underline: {
+    textDecorationLine: 'underline',
+  },
+  statusButton: {
+    width: 80,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
   },
   imageBottom: {
     width: 200,
@@ -248,7 +269,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     position: 'absolute',
     zIndex: -1,
-    bottom: '10%',
+    bottom: 10,
     alignSelf: 'center',
   },
 });

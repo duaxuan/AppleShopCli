@@ -1,63 +1,172 @@
 import React, {useState, useEffect} from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   ToastAndroid,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {formatPrice} from '../HomeScreen';
-import {API_User, API_User_Info} from '../../API/getAPI';
+import {
+  API_Product,
+  API_URL,
+  API_User_Info,
+  API_User_Pay,
+} from '../../API/getAPI';
 import axios from 'axios';
-
-const USER_ID = '654682a665f5a0fe5eab8f93';
-const USER_ID_INFO = '65460fd7b1a47545e1894cfb';
+import queryString from 'query-string';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import WebView from 'react-native-webview';
+import paypalApi from '../Paypal/paypalApi';
 
 const OrderPayScreen = ({navigation, route}) => {
   const {purchasedProduct, quantity} = route.params;
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState([]);
+  const [paypalUrl, setPaypalUrl] = useState(null);
+  const [isCheck, setIsCheck] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
 
-  const getAPI = async () => {
+  const convertToUSD = amountInVND => {
+    const exchangeRate = 24000;
+    return (amountInVND / exchangeRate).toFixed(2);
+  };
+
+  const orderDetail = {
+    intent: 'CAPTURE',
+    purchase_units: [
+      {
+        items: [
+          {
+            name: purchasedProduct.name,
+            description: 'Mô tả: ' + purchasedProduct.name,
+            quantity: quantity,
+            unit_amount: {
+              currency_code: 'USD',
+              value: convertToUSD(purchasedProduct.price),
+            },
+          },
+        ],
+        amount: {
+          currency_code: 'USD',
+          value: convertToUSD(purchasedProduct.price * quantity),
+          breakdown: {
+            item_total: {
+              currency_code: 'USD',
+              value: convertToUSD(purchasedProduct.price * quantity),
+            },
+          },
+        },
+      },
+    ],
+    application_context: {
+      return_url: 'https://example.com/return',
+      cancel_url: 'https://example.com/cancel',
+    },
+  };
+
+  const onPressPaypal = async () => {
+    setIsCheck(true);
     try {
-      const res = await axios.get(`${API_User_Info}/${USER_ID}`);
-      setUserInfo(res.data.message);
+      const token = await paypalApi.generateToken();
+      const {links} = await paypalApi.createOrder(token, orderDetail);
+
+      setAccessToken(token);
+      if (links) {
+        const approvalLink = links.find(link => link?.rel === 'approve');
+        setPaypalUrl(approvalLink?.href);
+      }
     } catch (error) {
-      console.log('Call api: ' + error.message);
+      console.error('Error:', error);
+      setIsCheck(false);
     }
   };
 
-  const handlePayment = async () => {
-    try {
-      if (!userInfo) {
-        console.error('Thông tin người dùng không có sẵn.');
-        return;
-      }
+  const onUrlChange = webviewState => {
+    if (webviewState.url.includes('https://example.com/cancel')) {
+      clearPaypalState();
+      return;
+    }
 
-      const orderResponse = await axios.post(`${API_User}pay`, {
-        userId: USER_ID_INFO,
+    if (
+      webviewState.url.includes('https://example.com/return') &&
+      !paymentProcessed
+    ) {
+      const {token} = queryString.parseUrl(webviewState.url).query;
+      if (token) {
+        setPaymentProcessed(true);
+        paymentSuccess(token);
+      }
+    }
+  };
+
+  const paymentSuccess = async id => {
+    try {
+      const res = await paypalApi.capturePayment(id, accessToken);
+      sendDataToServer(res);
+    } catch (error) {
+      console.error('Error capturing payment:', error);
+    }
+  };
+
+  const sendDataToServer = async paymentResponse => {
+    try {
+      await axios.post(API_User_Pay, {
+        userId: userInfo._id,
         productId: purchasedProduct._id,
         quantity,
         totalPrice: purchasedProduct.price * quantity,
+        paymentResponse,
       });
 
-      if (orderResponse.data.status) {
-        navigation.replace('Main');
-        ToastAndroid.show(
-          'Thanh toán thành công\nSản phẩm của bạn đang chờ duyệt!',
-          ToastAndroid.SHORT,
-        );
-      } else {
-        ToastAndroid.show(
-          'Thanh toán thất bại\nVui lòng kiểm tra đường truyền!',
-          ToastAndroid.SHORT,
-        );
-      }
+      let localUri = `${API_URL}${purchasedProduct.image}`;
+      let filename = localUri.split('/').pop();
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
+
+      let formData = new FormData();
+      formData.append('quantity', purchasedProduct.quantity - quantity);
+      formData.append('image', {uri: localUri, name: filename, type});
+
+      await axios.put(`${API_Product}${purchasedProduct._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      navigation.replace('Main', {screen: 'OrderScreen'});
+      ToastAndroid.show(
+        'Thanh toán thành công, chờ duyệt!',
+        ToastAndroid.SHORT,
+      );
+      clearPaypalState();
     } catch (error) {
-      console.error('Post api:' + error.message);
+      setIsCheck(false);
+      console.log('Error sending data to server:', error.message);
+    }
+  };
+
+  const clearPaypalState = () => {
+    setIsCheck(false);
+    setPaypalUrl(null);
+    setAccessToken(null);
+  };
+
+  const getAPI = async () => {
+    try {
+      const res = await axios.get(API_User_Info, {
+        params: {accountID: await AsyncStorage.getItem('_idUser')},
+      });
+      setUserInfo(res.data.message);
+    } catch (error) {
+      console.log('Call api: ' + error.message);
     }
   };
 
@@ -92,7 +201,7 @@ const OrderPayScreen = ({navigation, route}) => {
             <View style={styles.productInfo}>
               <Image
                 style={styles.imageProduct}
-                source={{uri: purchasedProduct.image}}
+                source={{uri: `${API_URL}${purchasedProduct.image}`}}
               />
               <View style={{marginLeft: '5%'}}>
                 <Text style={styles.productName}>{purchasedProduct.name}</Text>
@@ -130,9 +239,33 @@ const OrderPayScreen = ({navigation, route}) => {
         </Section>
       </ScrollView>
 
-      <Pressable style={styles.btnPay} onPress={handlePayment}>
-        <Text style={styles.txtPay}>Đặt hàng</Text>
+      <Pressable
+        disabled={isCheck}
+        style={styles.btnPay}
+        onPress={onPressPaypal}>
+        {isCheck ? (
+          <ActivityIndicator color={'white'} size={'small'} />
+        ) : (
+          <Text style={styles.txtPay}>Thanh toán Paypal</Text>
+        )}
       </Pressable>
+
+      <Modal visible={!!paypalUrl}>
+        <TouchableOpacity
+          onPress={clearPaypalState}
+          style={{marginHorizontal: '5%', marginVertical: '3%'}}>
+          <Text style={{color: 'black', fontWeight: '500'}}>Hủy</Text>
+        </TouchableOpacity>
+        <View style={{flex: 1}}>
+          <WebView
+            source={{uri: paypalUrl}}
+            onNavigationStateChange={onUrlChange}
+            incognito={true}
+            thirdPartyCookiesEnabled={false}
+            domStorageEnabled={false}
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -149,7 +282,11 @@ const renderInfo = (label, value) => (
 const renderPaymentInfo = (label, value, bold = false) => (
   <View style={styles.itemPay}>
     <Text style={{color: '#999999'}}>{label}:</Text>
-    <Text style={{fontWeight: 'bold', color: bold ? 'orange' : 'black'}}>
+    <Text
+      style={{
+        fontWeight: 'bold',
+        color: bold ? 'orange' : 'black',
+      }}>
       {bold == null ? `X${value}` : formatPrice(value)}
     </Text>
   </View>
@@ -234,9 +371,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: '3%',
+    marginVertical: '4%',
   },
   txtPay: {
+    fontStyle: 'italic',
     fontSize: 17,
     color: 'white',
     fontWeight: '600',
