@@ -229,11 +229,15 @@ const OrderPayScreen = ({navigation, route}) => {
         <Section title="Thanh toán" height={250}>
           {renderPaymentInfo('Giá sản phẩm', purchasedProduct.price)}
           {renderPaymentInfo('Khuyến mãi', 0)}
-          {renderPaymentInfo('Số lượng mua', quantity, null)}
+          {renderPaymentInfo('Số lượng mua', quantity, true)}
           <View style={styles.hr} />
           {renderPaymentInfo(
             'Tổng tiền thanh toán',
             purchasedProduct.price * quantity,
+          )}
+          {renderPaymentInfo(
+            'Quy đổi USD',
+            `${convertToUSD(purchasedProduct.price * quantity)} $`,
             true,
           )}
         </Section>
@@ -287,7 +291,7 @@ const renderPaymentInfo = (label, value, bold = false) => (
         fontWeight: 'bold',
         color: bold ? 'orange' : 'black',
       }}>
-      {bold == null ? `X${value}` : formatPrice(value)}
+      {bold ? value : formatPrice(value)}
     </Text>
   </View>
 );
@@ -381,7 +385,7 @@ const styles = StyleSheet.create({
   },
   itemPay: {
     flexDirection: 'row',
-    marginVertical: '4%',
+    marginVertical: '3%',
     justifyContent: 'space-between',
     marginHorizontal: '5%',
   },

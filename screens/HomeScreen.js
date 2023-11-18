@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -34,6 +35,7 @@ const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = useState('Macbook');
   const [DATADANHMUC, setDATADANHMUC] = useState([]);
   const [DATASANPHAM, setDATASANPHAM] = useState([]);
+  const [isCheck, setIscheck] = useState(true);
 
   const handleProductPress = product => {
     navigation.navigate('ProductdetailsScreen', {product});
@@ -96,16 +98,18 @@ const HomeScreen = ({navigation}) => {
         params: {accountID: await AsyncStorage.getItem('_idUser')},
       });
 
-      if (!res1.data.message.fullName) {
+      if (!res1.data.message.fullName || !res1.data.message.avatar) {
         console.warn('Hãy cập nhật thông tin để sử dụng dịch vụ của chúng tôi');
-        navigation.replace('EditAccountScreen');
+        navigation.navigate('EditAccountScreen');
       }
 
+      setIscheck(false);
       const res2 = await axios.get(API_Product, {params: {role: 'User'}});
       setDATASANPHAM(res2.data.message);
       const res3 = await axios.get(API_Type_Product);
       setDATADANHMUC(res3.data.message);
     } catch (error) {
+      setIscheck(false);
       console.error('Call api: ' + error.message);
     }
   };
@@ -138,21 +142,27 @@ const HomeScreen = ({navigation}) => {
           />
         </View>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Swiper style={styles.swiperContainer} autoplay>
-          {DATADANHMUC.map(category => (
-            <View key={category._id} style={styles.slide}>
-              <Image
-                style={styles.slideImage}
-                source={{uri: `${API_URL}${category.image}`}}
-              />
-              <Text style={styles.slideText}>{category.name}</Text>
-            </View>
-          ))}
-        </Swiper>
-        <CategoryList />
-        {selectedCategory && <ProductList />}
-      </ScrollView>
+      {isCheck ? (
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          <ActivityIndicator size={'large'} color={'gray'} />
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Swiper style={styles.swiperContainer} autoplay>
+            {DATADANHMUC.map(category => (
+              <View key={category._id} style={styles.slide}>
+                <Image
+                  style={styles.slideImage}
+                  source={{uri: `${API_URL}${category.image}`}}
+                />
+                <Text style={styles.slideText}>{category.name}</Text>
+              </View>
+            ))}
+          </Swiper>
+          <CategoryList />
+          <ProductList />
+        </ScrollView>
+      )}
     </View>
   );
 };

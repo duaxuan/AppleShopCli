@@ -55,7 +55,7 @@ const LoginScreen = ({navigation}) => {
       } else {
         if (res.data.role != 'Shop') {
           AsyncStorage.setItem('_idUser', res.data._id);
-          navigation.navigate('Main');
+          navigation.replace('Main');
         } else {
           console.warn('Vui lòng đăng nhập với vai trò user');
         }
@@ -154,10 +154,7 @@ const LoginScreen = ({navigation}) => {
         </View>
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don’t have an account?</Text>
-          <Text
-            style={styles.signupLink}
-            onPress={navigateToSignup}
-            disabled={isCheck}>
+          <Text style={styles.signupLink} onPress={navigateToSignup}>
             Sign Up
           </Text>
         </View>
